@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 
+import 'package:arculus/screens/home_screen.dart';
+
 void main() {
-  runApp(const MainApp());
+  WidgetsFlutterBinding.ensureInitialized();
+
+  runApp(const Arculus());
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+class Arculus extends StatelessWidget {
+  const Arculus({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
-      ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: const HomeScreen(),
     );
   }
 }
