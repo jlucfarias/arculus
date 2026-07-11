@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import 'package:arculus/repositories/token_repository.dart';
 import 'package:arculus/screens/add_token_screen.dart';
+import 'package:arculus/utils/app_database.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -46,15 +49,17 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _tokenList() {
+  Widget _tokenList(BuildContext context, List<Token> tokens) {
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
-      itemCount: 2,
+      itemCount: tokens.length,
       itemBuilder: (ctx, i) {
+        final token = tokens[i];
+
         return Container(
           margin: const EdgeInsets.only(bottom: 10),
           decoration: BoxDecoration(
-            color: Color(0xFFF0F0F0),
+            color: Colors.grey,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
@@ -76,7 +81,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           child: Center(
                             child: Text(
-                              'A',
+                              (token.issuer ?? token.name)
+                                  .substring(0, 1)
+                                  .toUpperCase(),
                               style: TextStyle(
                                 fontSize: 32,
                                 color: Colors.white,
@@ -93,14 +100,17 @@ class _HomeScreenState extends State<HomeScreen> {
                         Row(
                           children: [
                             Text(
-                              'Emissor',
+                              token.issuer ?? token.name,
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                             const SizedBox(width: 10),
-                            Text('(usuário)', style: TextStyle(fontSize: 16)),
+                            Text(
+                              token.issuer != null ? '(${token.name})' : '',
+                              style: TextStyle(fontSize: 16),
+                            ),
                           ],
                         ),
                         Row(
@@ -138,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isEmpty = true;
+    final tokenRepository = context.read<TokenRepository>();
 
     return Scaffold(
       appBar: AppBar(
@@ -157,8 +167,25 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: SafeArea(
-        child: Column(
-          children: [Expanded(child: isEmpty ? _emptyList() : _tokenList())],
+        child: StreamBuilder<List<Token>>(
+          stream: tokenRepository.watchAllTokens(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            final tokens = snapshot.data ?? [];
+
+            return Column(
+              children: [
+                Expanded(
+                  child: tokens.isEmpty
+                      ? _emptyList()
+                      : _tokenList(context, tokens),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

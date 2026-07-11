@@ -10,14 +10,25 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # State
+  provider: ^6.1.2
+
+  # Data
+  drift: ^2.34.1
+  drift_flutter: ^0.3.1-wip
+  path_provider: ^2.1.6
+
   # UI
   flutter_native_splash: ^2.4.8
+  flutter_riverpod: ^2.6.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.4
+  drift_dev: ^2.34.2+1
+  build_runner: ^2.15.0
 
 flutter:
   generate: true
