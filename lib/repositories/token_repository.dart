@@ -14,6 +14,10 @@ class TokenRepository {
     return _db.select(_db.tokens).watch();
   }
 
+  Future<Token?> getTokenById(int id) async {
+    return await (_db.select(_db.tokens)..where((t) => t.id.equals(id))).getSingleOrNull();
+  }
+
   Future<int> getTokenCount() async {
     final countExpression = countAll();
     final query = _db.selectOnly(_db.tokens)..addColumns([countExpression]);
@@ -24,6 +28,10 @@ class TokenRepository {
 
   Future<int> insertToken(TokensCompanion token) {
     return _db.into(_db.tokens).insert(token);
+  }
+
+  Future<bool> updateToken(TokensCompanion token) async {
+    return await (_db.update(_db.tokens).replace(token));
   }
 
   Future<bool> deleteToken(int id) async {

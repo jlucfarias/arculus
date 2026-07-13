@@ -6,7 +6,12 @@ import 'package:arculus/utils/app_database.dart';
 import 'package:arculus/repositories/token_repository.dart';
 
 class AddTokenScreen extends StatefulWidget {
-  const AddTokenScreen({super.key});
+  final Token? tokenToEdit;
+
+  const AddTokenScreen({
+    super.key,
+    this.tokenToEdit,
+  });
 
   @override
   State<AddTokenScreen> createState() => _AddTokenScreenState();
@@ -27,6 +32,15 @@ class _AddTokenScreenState extends State<AddTokenScreen> {
   @override
   void initState() {
     super.initState();
+
+    if (widget.tokenToEdit != null) {
+      final token = widget.tokenToEdit!;
+      _nameController.text = token.name;
+      _issuerController.text = token.issuer ?? '';
+      _secretController.text = token.secret;
+      _intervalController.text = token.interval.toString();
+      _digitsController.text = token.digits.toString();
+    }
   }
 
   @override
@@ -43,18 +57,33 @@ class _AddTokenScreenState extends State<AddTokenScreen> {
     Navigator.pop(context);
   }
 
-  void _addToken(BuildContext context) async {
+  void _saveToken(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
       final tokenRepository = context.read<TokenRepository>();
-      final token = TokensCompanion.insert(
-        name: _nameController.text,
-        issuer: Value(_issuerController.text),
-        secret: _secretController.text,
-        interval: int.parse(_intervalController.text),
-        digits: int.parse(_digitsController.text),
-      );
+      final isEditing = widget.tokenToEdit != null;
 
-      await tokenRepository.insertToken(token);
+      if (isEditing) {
+        final updatedToken = TokensCompanion(
+          id: Value(widget.tokenToEdit!.id),
+          name: Value(_nameController.text),
+          issuer: Value(_issuerController.text),
+          secret: Value(_secretController.text),
+          interval: Value(int.parse(_intervalController.text)),
+          digits: Value(int.parse(_digitsController.text)),
+        );
+
+        await tokenRepository.updateToken(updatedToken);
+      } else {
+        final token = TokensCompanion.insert(
+          name: _nameController.text,
+          issuer: Value(_issuerController.text),
+          secret: _secretController.text,
+          interval: int.parse(_intervalController.text),
+          digits: int.parse(_digitsController.text),
+        );
+
+        await tokenRepository.insertToken(token);
+      }
 
       if (!context.mounted) {
         return;
@@ -76,7 +105,7 @@ class _AddTokenScreenState extends State<AddTokenScreen> {
             icon: const Icon(Icons.arrow_back),
             onPressed: () => _goBack(context),
           ),
-          title: Text('Adicionar conta'),
+          title: Text(widget.tokenToEdit != null ? 'Editar conta' : 'Adicionar conta'),
           backgroundColor: Colors.deepPurpleAccent,
           foregroundColor: Colors.white,
         ),
@@ -264,8 +293,8 @@ class _AddTokenScreenState extends State<AddTokenScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: () => _addToken(context),
-                      label: const Text('Adicionar'),
+                      onPressed: () => _saveToken(context),
+                      label: Text(widget.tokenToEdit != null ? 'Salvar Alterações' : 'Adicionar'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.deepPurpleAccent,
                         foregroundColor: Colors.white,

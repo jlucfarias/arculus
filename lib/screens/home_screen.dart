@@ -13,6 +13,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int? _selectedTokenId;
+
   @override
   void initState() {
     super.initState();
@@ -23,10 +25,70 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  void _addToken(BuildContext context) {
+  void _addToken(BuildContext context, { int? tokenId }) async {
+    Token? token;
+
+    if (tokenId != null) {
+      final tokenRepository = context.read<TokenRepository>();
+      token = await tokenRepository.getTokenById(tokenId);
+
+      _emptySelectedTokenList();
+    }
+
+    if (!context.mounted) {
+      return;
+    }
+
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => AddTokenScreen()),
+      MaterialPageRoute(builder: (_) => AddTokenScreen(tokenToEdit: token)),
+    );
+  }
+
+  void _selectToken(int id) {
+    setState(() {
+      _selectedTokenId = id;
+    });
+  }
+
+  void _emptySelectedTokenList() {
+    setState(() {
+      _selectedTokenId = null;
+    });
+  }
+
+  void _deleteToken(BuildContext context, int id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Excluir conta'),
+          content: const Text('Você têm certeza que deseja excluir essa conta?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () async {
+                final tokenRepository = context.read<TokenRepository>();
+
+                await tokenRepository.deleteToken(id);
+
+                if (!context.mounted) {
+                  return;
+                }
+
+                Navigator.of(context).pop();
+                _emptySelectedTokenList();
+              },
+              child: const Text('Excluir'),
+            ),
+          ],
+        );
+      }
     );
   }
 
@@ -56,90 +118,93 @@ class _HomeScreenState extends State<HomeScreen> {
       itemBuilder: (ctx, i) {
         final token = tokens[i];
 
-        return Container(
-          margin: const EdgeInsets.only(bottom: 10),
-          decoration: BoxDecoration(
-            color: Colors.grey,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.fromLTRB(16, 18, 12, 18),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Column(
-                      children: [
-                        Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            color: Colors.deepPurpleAccent,
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: Center(
-                            child: Text(
-                              (token.issuer ?? token.name)
-                                  .substring(0, 1)
-                                  .toUpperCase(),
-                              style: TextStyle(
-                                fontSize: 32,
-                                color: Colors.white,
+        return GestureDetector(
+          onLongPress: () => _selectToken(token.id),
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            decoration: BoxDecoration(
+              color: Colors.grey,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.fromLTRB(16, 18, 12, 18),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Column(
+                        children: [
+                          Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: Colors.deepPurpleAccent,
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Center(
+                              child: Text(
+                                (token.issuer ?? token.name)
+                                    .substring(0, 1)
+                                    .toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(width: 20),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              token.issuer ?? token.name,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
+                        ],
+                      ),
+                      const SizedBox(width: 20),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                token.issuer ?? token.name,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            Text(
-                              token.issuer != null ? '(${token.name})' : '',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              '123',
-                              style: TextStyle(
-                                fontSize: 36,
-                                fontWeight: FontWeight.w600,
-                                height: 1.1,
+                              const SizedBox(width: 10),
+                              Text(
+                                token.issuer != null ? '(${token.name})' : '',
+                                style: TextStyle(fontSize: 16),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '456',
-                              style: TextStyle(
-                                fontSize: 36,
-                                fontWeight: FontWeight.w600,
-                                height: 1.1,
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                '123',
+                                style: TextStyle(
+                                  fontSize: 36,
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.1,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
+                              const SizedBox(width: 8),
+                              Text(
+                                '456',
+                                style: TextStyle(
+                                  fontSize: 36,
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.1,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -152,7 +217,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Arculus'),
+        leading: _selectedTokenId != null ? IconButton(
+          onPressed: () => _emptySelectedTokenList(),
+          icon: const Icon(Icons.close)
+        ) : null,
+        title: _selectedTokenId == null ? Text('Arculus') : null,
+        actions: [
+          _selectedTokenId != null ? IconButton(
+            onPressed: () => _addToken(context, tokenId: _selectedTokenId!),
+            icon: const Icon(Icons.edit)
+          ) : const SizedBox.shrink(),
+          _selectedTokenId != null ? IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: () => _deleteToken(context, _selectedTokenId!)
+          ) : const SizedBox.shrink(),
+        ],
         backgroundColor: Colors.deepPurpleAccent,
         foregroundColor: Colors.white,
       ),
