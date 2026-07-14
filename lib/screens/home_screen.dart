@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:arculus/providers/theme_provider.dart';
 import 'package:arculus/repositories/token_repository.dart';
 import 'package:arculus/screens/add_token_screen.dart';
+import 'package:arculus/screens/settings_screen.dart';
 import 'package:arculus/utils/app_database.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -25,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  void _addToken(BuildContext context, { int? tokenId }) async {
+  void _addToken(BuildContext context, {int? tokenId}) async {
     Token? token;
 
     if (tokenId != null) {
@@ -41,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => AddTokenScreen(tokenToEdit: token)),
+      MaterialPageRoute(builder: (context) => AddTokenScreen(tokenToEdit: token)),
     );
   }
 
@@ -63,7 +65,9 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Excluir conta'),
-          content: const Text('Você têm certeza que deseja excluir essa conta?'),
+          content: const Text(
+            'Você têm certeza que deseja excluir essa conta?',
+          ),
           actions: [
             TextButton(
               onPressed: () {
@@ -88,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         );
-      }
+      },
     );
   }
 
@@ -213,26 +217,60 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
     final tokenRepository = context.read<TokenRepository>();
 
     return Scaffold(
       appBar: AppBar(
-        leading: _selectedTokenId != null ? IconButton(
-          onPressed: () => _emptySelectedTokenList(),
-          icon: const Icon(Icons.close)
-        ) : null,
+        leading: _selectedTokenId != null
+            ? IconButton(
+                onPressed: () => _emptySelectedTokenList(),
+                icon: const Icon(Icons.close),
+              )
+            : null,
         title: _selectedTokenId == null ? Text('Arculus') : null,
         actions: [
-          _selectedTokenId != null ? IconButton(
-            onPressed: () => _addToken(context, tokenId: _selectedTokenId!),
-            icon: const Icon(Icons.edit)
-          ) : const SizedBox.shrink(),
-          _selectedTokenId != null ? IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () => _deleteToken(context, _selectedTokenId!)
-          ) : const SizedBox.shrink(),
+          _selectedTokenId != null
+              ? IconButton(
+                  onPressed: () =>
+                      _addToken(context, tokenId: _selectedTokenId!),
+                  icon: const Icon(Icons.edit),
+                )
+              : const SizedBox.shrink(),
+          _selectedTokenId != null
+              ? IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () => _deleteToken(context, _selectedTokenId!),
+                )
+              : const SizedBox.shrink(),
+          _selectedTokenId == null
+              ? PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert),
+                  tooltip: 'Mais opções',
+                  onSelected: (String value) {
+                    switch (value) {
+                      case 'settings':
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SettingsScreen(),
+                          ),
+                        );
+                        break;
+                    }
+                  },
+                  itemBuilder: (BuildContext context) {
+                    return [
+                      const PopupMenuItem<String>(
+                        value: 'settings',
+                        child: Text('Configurações'),
+                      ),
+                    ];
+                  },
+                )
+              : const SizedBox.shrink(),
         ],
-        backgroundColor: Colors.deepPurpleAccent,
+        backgroundColor: themeProvider.currentTheme.colors.primary,
         foregroundColor: Colors.white,
       ),
       floatingActionButton: Column(
@@ -255,14 +293,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
             final tokens = snapshot.data ?? [];
 
-            return Column(
-              children: [
-                Expanded(
-                  child: tokens.isEmpty
-                      ? _emptyList()
-                      : _tokenList(context, tokens),
-                ),
-              ],
+            return Container(
+              decoration: BoxDecoration(color: themeProvider.currentTheme.colors.background),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: tokens.isEmpty
+                        ? _emptyList()
+                        : _tokenList(context, tokens),
+                  ),
+                ],
+              ),
             );
           },
         ),

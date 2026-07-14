@@ -20,6 +20,9 @@ Arculus is a free, open-source, multiplatform authentication app built with Flut
 
 - **Free and open source**
 
+- **Organization and usability**
+  - Light and Dark themes
+
 ## License
 
 This project is licensed under MIT. See the [LICENSE](./LICENSE.md) file for details.
