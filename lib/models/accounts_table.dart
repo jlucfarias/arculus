@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 
-class Tokens extends Table {
+class Accounts extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text().withLength(max: 50)();
   TextColumn get issuer => text().withLength(max: 50).nullable()();

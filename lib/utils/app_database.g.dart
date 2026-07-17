@@ -3,11 +3,11 @@
 part of 'app_database.dart';
 
 // ignore_for_file: type=lint
-class $TokensTable extends Tokens with TableInfo<$TokensTable, Token> {
+class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $TokensTable(this.attachedDatabase, [this._alias]);
+  $AccountsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -114,10 +114,10 @@ class $TokensTable extends Tokens with TableInfo<$TokensTable, Token> {
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'tokens';
+  static const String $name = 'accounts';
   @override
   VerificationContext validateIntegrity(
-    Insertable<Token> instance, {
+    Insertable<Account> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -181,9 +181,9 @@ class $TokensTable extends Tokens with TableInfo<$TokensTable, Token> {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Token map(Map<String, dynamic> data, {String? tablePrefix}) {
+  Account map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Token(
+    return Account(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}id'],
@@ -220,12 +220,12 @@ class $TokensTable extends Tokens with TableInfo<$TokensTable, Token> {
   }
 
   @override
-  $TokensTable createAlias(String alias) {
-    return $TokensTable(attachedDatabase, alias);
+  $AccountsTable createAlias(String alias) {
+    return $AccountsTable(attachedDatabase, alias);
   }
 }
 
-class Token extends DataClass implements Insertable<Token> {
+class Account extends DataClass implements Insertable<Account> {
   final int id;
   final String name;
   final String? issuer;
@@ -234,7 +234,7 @@ class Token extends DataClass implements Insertable<Token> {
   final int digits;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-  const Token({
+  const Account({
     required this.id,
     required this.name,
     this.issuer,
@@ -264,8 +264,8 @@ class Token extends DataClass implements Insertable<Token> {
     return map;
   }
 
-  TokensCompanion toCompanion(bool nullToAbsent) {
-    return TokensCompanion(
+  AccountsCompanion toCompanion(bool nullToAbsent) {
+    return AccountsCompanion(
       id: Value(id),
       name: Value(name),
       issuer: issuer == null && nullToAbsent
@@ -283,12 +283,12 @@ class Token extends DataClass implements Insertable<Token> {
     );
   }
 
-  factory Token.fromJson(
+  factory Account.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Token(
+    return Account(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       issuer: serializer.fromJson<String?>(json['issuer']),
@@ -314,7 +314,7 @@ class Token extends DataClass implements Insertable<Token> {
     };
   }
 
-  Token copyWith({
+  Account copyWith({
     int? id,
     String? name,
     Value<String?> issuer = const Value.absent(),
@@ -323,7 +323,7 @@ class Token extends DataClass implements Insertable<Token> {
     int? digits,
     Value<DateTime?> createdAt = const Value.absent(),
     Value<DateTime?> updatedAt = const Value.absent(),
-  }) => Token(
+  }) => Account(
     id: id ?? this.id,
     name: name ?? this.name,
     issuer: issuer.present ? issuer.value : this.issuer,
@@ -333,8 +333,8 @@ class Token extends DataClass implements Insertable<Token> {
     createdAt: createdAt.present ? createdAt.value : this.createdAt,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
   );
-  Token copyWithCompanion(TokensCompanion data) {
-    return Token(
+  Account copyWithCompanion(AccountsCompanion data) {
+    return Account(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
       issuer: data.issuer.present ? data.issuer.value : this.issuer,
@@ -348,7 +348,7 @@ class Token extends DataClass implements Insertable<Token> {
 
   @override
   String toString() {
-    return (StringBuffer('Token(')
+    return (StringBuffer('Account(')
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('issuer: $issuer, ')
@@ -375,7 +375,7 @@ class Token extends DataClass implements Insertable<Token> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Token &&
+      (other is Account &&
           other.id == this.id &&
           other.name == this.name &&
           other.issuer == this.issuer &&
@@ -386,7 +386,7 @@ class Token extends DataClass implements Insertable<Token> {
           other.updatedAt == this.updatedAt);
 }
 
-class TokensCompanion extends UpdateCompanion<Token> {
+class AccountsCompanion extends UpdateCompanion<Account> {
   final Value<int> id;
   final Value<String> name;
   final Value<String?> issuer;
@@ -395,7 +395,7 @@ class TokensCompanion extends UpdateCompanion<Token> {
   final Value<int> digits;
   final Value<DateTime?> createdAt;
   final Value<DateTime?> updatedAt;
-  const TokensCompanion({
+  const AccountsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.issuer = const Value.absent(),
@@ -405,7 +405,7 @@ class TokensCompanion extends UpdateCompanion<Token> {
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
-  TokensCompanion.insert({
+  AccountsCompanion.insert({
     this.id = const Value.absent(),
     required String name,
     this.issuer = const Value.absent(),
@@ -418,7 +418,7 @@ class TokensCompanion extends UpdateCompanion<Token> {
        secret = Value(secret),
        interval = Value(interval),
        digits = Value(digits);
-  static Insertable<Token> custom({
+  static Insertable<Account> custom({
     Expression<int>? id,
     Expression<String>? name,
     Expression<String>? issuer,
@@ -440,7 +440,7 @@ class TokensCompanion extends UpdateCompanion<Token> {
     });
   }
 
-  TokensCompanion copyWith({
+  AccountsCompanion copyWith({
     Value<int>? id,
     Value<String>? name,
     Value<String?>? issuer,
@@ -450,7 +450,7 @@ class TokensCompanion extends UpdateCompanion<Token> {
     Value<DateTime?>? createdAt,
     Value<DateTime?>? updatedAt,
   }) {
-    return TokensCompanion(
+    return AccountsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       issuer: issuer ?? this.issuer,
@@ -494,7 +494,7 @@ class TokensCompanion extends UpdateCompanion<Token> {
 
   @override
   String toString() {
-    return (StringBuffer('TokensCompanion(')
+    return (StringBuffer('AccountsCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('issuer: $issuer, ')
@@ -511,16 +511,16 @@ class TokensCompanion extends UpdateCompanion<Token> {
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
-  late final $TokensTable tokens = $TokensTable(this);
+  late final $AccountsTable accounts = $AccountsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [tokens];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [accounts];
 }
 
-typedef $$TokensTableCreateCompanionBuilder =
-    TokensCompanion Function({
+typedef $$AccountsTableCreateCompanionBuilder =
+    AccountsCompanion Function({
       Value<int> id,
       required String name,
       Value<String?> issuer,
@@ -530,8 +530,8 @@ typedef $$TokensTableCreateCompanionBuilder =
       Value<DateTime?> createdAt,
       Value<DateTime?> updatedAt,
     });
-typedef $$TokensTableUpdateCompanionBuilder =
-    TokensCompanion Function({
+typedef $$AccountsTableUpdateCompanionBuilder =
+    AccountsCompanion Function({
       Value<int> id,
       Value<String> name,
       Value<String?> issuer,
@@ -542,9 +542,9 @@ typedef $$TokensTableUpdateCompanionBuilder =
       Value<DateTime?> updatedAt,
     });
 
-class $$TokensTableFilterComposer
-    extends Composer<_$AppDatabase, $TokensTable> {
-  $$TokensTableFilterComposer({
+class $$AccountsTableFilterComposer
+    extends Composer<_$AppDatabase, $AccountsTable> {
+  $$AccountsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -592,9 +592,9 @@ class $$TokensTableFilterComposer
   );
 }
 
-class $$TokensTableOrderingComposer
-    extends Composer<_$AppDatabase, $TokensTable> {
-  $$TokensTableOrderingComposer({
+class $$AccountsTableOrderingComposer
+    extends Composer<_$AppDatabase, $AccountsTable> {
+  $$AccountsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -642,9 +642,9 @@ class $$TokensTableOrderingComposer
   );
 }
 
-class $$TokensTableAnnotationComposer
-    extends Composer<_$AppDatabase, $TokensTable> {
-  $$TokensTableAnnotationComposer({
+class $$AccountsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AccountsTable> {
+  $$AccountsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -676,32 +676,32 @@ class $$TokensTableAnnotationComposer
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 }
 
-class $$TokensTableTableManager
+class $$AccountsTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $TokensTable,
-          Token,
-          $$TokensTableFilterComposer,
-          $$TokensTableOrderingComposer,
-          $$TokensTableAnnotationComposer,
-          $$TokensTableCreateCompanionBuilder,
-          $$TokensTableUpdateCompanionBuilder,
-          (Token, BaseReferences<_$AppDatabase, $TokensTable, Token>),
-          Token,
+          $AccountsTable,
+          Account,
+          $$AccountsTableFilterComposer,
+          $$AccountsTableOrderingComposer,
+          $$AccountsTableAnnotationComposer,
+          $$AccountsTableCreateCompanionBuilder,
+          $$AccountsTableUpdateCompanionBuilder,
+          (Account, BaseReferences<_$AppDatabase, $AccountsTable, Account>),
+          Account,
           PrefetchHooks Function()
         > {
-  $$TokensTableTableManager(_$AppDatabase db, $TokensTable table)
+  $$AccountsTableTableManager(_$AppDatabase db, $AccountsTable table)
     : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$TokensTableFilterComposer($db: db, $table: table),
+              $$AccountsTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$TokensTableOrderingComposer($db: db, $table: table),
+              $$AccountsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$TokensTableAnnotationComposer($db: db, $table: table),
+              $$AccountsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
@@ -712,7 +712,7 @@ class $$TokensTableTableManager
                 Value<int> digits = const Value.absent(),
                 Value<DateTime?> createdAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
-              }) => TokensCompanion(
+              }) => AccountsCompanion(
                 id: id,
                 name: name,
                 issuer: issuer,
@@ -732,7 +732,7 @@ class $$TokensTableTableManager
                 required int digits,
                 Value<DateTime?> createdAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
-              }) => TokensCompanion.insert(
+              }) => AccountsCompanion.insert(
                 id: id,
                 name: name,
                 issuer: issuer,
@@ -750,24 +750,24 @@ class $$TokensTableTableManager
       );
 }
 
-typedef $$TokensTableProcessedTableManager =
+typedef $$AccountsTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $TokensTable,
-      Token,
-      $$TokensTableFilterComposer,
-      $$TokensTableOrderingComposer,
-      $$TokensTableAnnotationComposer,
-      $$TokensTableCreateCompanionBuilder,
-      $$TokensTableUpdateCompanionBuilder,
-      (Token, BaseReferences<_$AppDatabase, $TokensTable, Token>),
-      Token,
+      $AccountsTable,
+      Account,
+      $$AccountsTableFilterComposer,
+      $$AccountsTableOrderingComposer,
+      $$AccountsTableAnnotationComposer,
+      $$AccountsTableCreateCompanionBuilder,
+      $$AccountsTableUpdateCompanionBuilder,
+      (Account, BaseReferences<_$AppDatabase, $AccountsTable, Account>),
+      Account,
       PrefetchHooks Function()
     >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
-  $$TokensTableTableManager get tokens =>
-      $$TokensTableTableManager(_db, _db.tokens);
+  $$AccountsTableTableManager get accounts =>
+      $$AccountsTableTableManager(_db, _db.accounts);
 }

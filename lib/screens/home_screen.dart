@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:arculus/extensions/l10n_extension.dart';
 import 'package:arculus/providers/theme_provider.dart';
-import 'package:arculus/repositories/token_repository.dart';
-import 'package:arculus/screens/add_token_screen.dart';
+import 'package:arculus/repositories/account_repository.dart';
+import 'package:arculus/screens/account_screen.dart';
 import 'package:arculus/screens/settings_screen.dart';
+import 'package:arculus/utils/app_constants.dart';
 import 'package:arculus/utils/app_database.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,7 +17,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int? _selectedTokenId;
+  int? _selectedAccountId;
 
   @override
   void initState() {
@@ -27,68 +29,75 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  void _addToken(BuildContext context, {int? tokenId}) async {
-    Token? token;
+  void _addAccount({int? accountId}) async {
+    final localContext = context;
+    Account? account;
 
-    if (tokenId != null) {
-      final tokenRepository = context.read<TokenRepository>();
-      token = await tokenRepository.getTokenById(tokenId);
+    if (accountId != null) {
+      final accountRepository = localContext.read<AccountRepository>();
+      account = await accountRepository.getAccountById(accountId);
 
-      _emptySelectedTokenList();
+      _emptySelectedAccountList();
     }
 
-    if (!context.mounted) {
+    if (!localContext.mounted) {
       return;
     }
 
     Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => AddTokenScreen(tokenToEdit: token)),
+      localContext,
+      MaterialPageRoute(
+        builder: (screenContext) => AccountScreen(accountToEdit: account),
+      ),
     );
   }
 
-  void _selectToken(int id) {
+  void _selectAccount(int accountId) {
     setState(() {
-      _selectedTokenId = id;
+      _selectedAccountId = accountId;
     });
   }
 
-  void _emptySelectedTokenList() {
+  void _emptySelectedAccountList() {
     setState(() {
-      _selectedTokenId = null;
+      _selectedAccountId = null;
     });
   }
 
-  void _deleteToken(BuildContext context, int id) {
+  void _deleteAccount({required int accountId}) {
+    final l10n = context.l10n;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Excluir conta'),
-          content: const Text(
-            'Você têm certeza que deseja excluir essa conta?',
-          ),
+          title: Text(l10n.homeScreen_deleteAccountDialog_title),
+          content: Text(l10n.homeScreen_deleteAccountDialog_content),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancelar'),
+              child: Text(
+                l10n.homeScreen_deleteAccountDialog_cancelButton_label,
+              ),
             ),
             TextButton(
               onPressed: () async {
-                final tokenRepository = context.read<TokenRepository>();
+                final accountRepository = context.read<AccountRepository>();
 
-                await tokenRepository.deleteToken(id);
+                await accountRepository.deleteAccount(accountId);
 
                 if (!context.mounted) {
                   return;
                 }
 
                 Navigator.of(context).pop();
-                _emptySelectedTokenList();
+                _emptySelectedAccountList();
               },
-              child: const Text('Excluir'),
+              child: Text(
+                l10n.homeScreen_deleteAccountDialog_confirmButton_label,
+              ),
             ),
           ],
         );
@@ -97,17 +106,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _emptyList() {
+    final l10n = context.l10n;
+
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Nenhuma conta registrada',
+            l10n.homeScreen_emptyAccountList_title,
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           Text(
-            'Toque no + para adicionar uma conta',
+            l10n.homeScreen_emptyAccountList_description,
             style: TextStyle(fontSize: 14, color: Color(0xFF8888A8)),
           ),
         ],
@@ -115,15 +126,15 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _tokenList(BuildContext context, List<Token> tokens) {
+  Widget _accountList(List<Account> accounts) {
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
-      itemCount: tokens.length,
+      itemCount: accounts.length,
       itemBuilder: (ctx, i) {
-        final token = tokens[i];
+        final account = accounts[i];
 
         return GestureDetector(
-          onLongPress: () => _selectToken(token.id),
+          onLongPress: () => _selectAccount(account.id),
           child: Container(
             margin: const EdgeInsets.only(bottom: 10),
             decoration: BoxDecoration(
@@ -149,7 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             child: Center(
                               child: Text(
-                                (token.issuer ?? token.name)
+                                (account.issuer ?? account.name)
                                     .substring(0, 1)
                                     .toUpperCase(),
                                 style: TextStyle(
@@ -168,7 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Row(
                             children: [
                               Text(
-                                token.issuer ?? token.name,
+                                account.issuer ?? account.name,
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600,
@@ -176,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               const SizedBox(width: 10),
                               Text(
-                                token.issuer != null ? '(${token.name})' : '',
+                                account.issuer != null ? '(${account.name})' : '',
                                 style: TextStyle(fontSize: 16),
                               ),
                             ],
@@ -215,60 +226,92 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget? _buildEmptyAccountSelection() {
+    if (_selectedAccountId != null) {
+      return IconButton(
+        onPressed: () => _emptySelectedAccountList(),
+        icon: const Icon(Icons.close),
+      );
+    }
+
+    return null;
+  }
+
+  Widget? _buildTitle() {
+    if (_selectedAccountId == null) {
+      return Text(AppConstants.title);
+    }
+
+    return null;
+  }
+
+  Widget _buildEditSelectedAccountAction() {
+    if (_selectedAccountId != null) {
+      return IconButton(
+        onPressed: () => _addAccount(accountId: _selectedAccountId!),
+        icon: const Icon(Icons.edit),
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildDeleteSelectedAccountAction() {
+    if (_selectedAccountId != null) {
+      return IconButton(
+        icon: const Icon(Icons.delete),
+        onPressed: () => _deleteAccount(accountId: _selectedAccountId!),
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildOptionsMenuAction() {
+    if (_selectedAccountId != null) {
+      return const SizedBox.shrink();
+    }
+
+    final l10n = context.l10n;
+
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.more_vert),
+      tooltip: l10n.homeScreen_optionsMenuAction_tooltipText,
+      onSelected: (String value) {
+        switch (value) {
+          case 'settings':
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SettingsScreen()),
+            );
+            break;
+        }
+      },
+      itemBuilder: (BuildContext context) {
+        return [
+          PopupMenuItem<String>(
+            value: 'settings',
+            child: Text(l10n.homeScreen_optionsMenuAction_settingsItemLabel),
+          ),
+        ];
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
-    final tokenRepository = context.read<TokenRepository>();
+    final accountRepository = context.read<AccountRepository>();
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
-        leading: _selectedTokenId != null
-            ? IconButton(
-                onPressed: () => _emptySelectedTokenList(),
-                icon: const Icon(Icons.close),
-              )
-            : null,
-        title: _selectedTokenId == null ? Text('Arculus') : null,
+        leading: _buildEmptyAccountSelection(),
+        title: _buildTitle(),
         actions: [
-          _selectedTokenId != null
-              ? IconButton(
-                  onPressed: () =>
-                      _addToken(context, tokenId: _selectedTokenId!),
-                  icon: const Icon(Icons.edit),
-                )
-              : const SizedBox.shrink(),
-          _selectedTokenId != null
-              ? IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () => _deleteToken(context, _selectedTokenId!),
-                )
-              : const SizedBox.shrink(),
-          _selectedTokenId == null
-              ? PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert),
-                  tooltip: 'Mais opções',
-                  onSelected: (String value) {
-                    switch (value) {
-                      case 'settings':
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SettingsScreen(),
-                          ),
-                        );
-                        break;
-                    }
-                  },
-                  itemBuilder: (BuildContext context) {
-                    return [
-                      const PopupMenuItem<String>(
-                        value: 'settings',
-                        child: Text('Configurações'),
-                      ),
-                    ];
-                  },
-                )
-              : const SizedBox.shrink(),
+          _buildEditSelectedAccountAction(),
+          _buildDeleteSelectedAccountAction(),
+          _buildOptionsMenuAction(),
         ],
         backgroundColor: themeProvider.currentTheme.colors.primary,
         foregroundColor: Colors.white,
@@ -278,29 +321,29 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           FloatingActionButton.extended(
             icon: const Icon(Icons.add_rounded),
-            label: Text('Adicionar'),
-            onPressed: () => _addToken(context),
+            label: Text(l10n.homeScreen_floatActionButton_label),
+            onPressed: () => _addAccount(),
           ),
         ],
       ),
       body: SafeArea(
-        child: StreamBuilder<List<Token>>(
-          stream: tokenRepository.watchAllTokens(),
+        child: StreamBuilder<List<Account>>(
+          stream: accountRepository.watchAllAccounts(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
 
-            final tokens = snapshot.data ?? [];
+            final accounts = snapshot.data ?? [];
 
             return Container(
-              decoration: BoxDecoration(color: themeProvider.currentTheme.colors.background),
+              decoration: BoxDecoration(
+                color: themeProvider.currentTheme.colors.background,
+              ),
               child: Column(
                 children: [
                   Expanded(
-                    child: tokens.isEmpty
-                        ? _emptyList()
-                        : _tokenList(context, tokens),
+                    child: accounts.isEmpty ? _emptyList() : _accountList(accounts),
                   ),
                 ],
               ),

@@ -2,20 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:drift/drift.dart' hide Column;
 
+import 'package:arculus/extensions/l10n_extension.dart';
 import 'package:arculus/providers/theme_provider.dart';
 import 'package:arculus/utils/app_database.dart';
-import 'package:arculus/repositories/token_repository.dart';
+import 'package:arculus/repositories/account_repository.dart';
 
-class AddTokenScreen extends StatefulWidget {
-  final Token? tokenToEdit;
+class AccountScreen extends StatefulWidget {
+  final Account? accountToEdit;
 
-  const AddTokenScreen({super.key, this.tokenToEdit});
+  const AccountScreen({super.key, this.accountToEdit});
 
   @override
-  State<AddTokenScreen> createState() => _AddTokenScreenState();
+  State<AccountScreen> createState() => _AccountScreenState();
 }
 
-class _AddTokenScreenState extends State<AddTokenScreen> {
+class _AccountScreenState extends State<AccountScreen> {
   final _nameController = TextEditingController();
   final _nameFieldKey = GlobalKey<FormFieldState>();
   final _issuerController = TextEditingController();
@@ -26,18 +27,19 @@ class _AddTokenScreenState extends State<AddTokenScreen> {
   final _digitsController = TextEditingController(text: '6');
   final _digitsFieldKey = GlobalKey<FormFieldState>();
   final _formKey = GlobalKey<FormState>();
+  bool _showSecret = false;
 
   @override
   void initState() {
     super.initState();
 
-    if (widget.tokenToEdit != null) {
-      final token = widget.tokenToEdit!;
-      _nameController.text = token.name;
-      _issuerController.text = token.issuer ?? '';
-      _secretController.text = token.secret;
-      _intervalController.text = token.interval.toString();
-      _digitsController.text = token.digits.toString();
+    if (widget.accountToEdit != null) {
+      final account = widget.accountToEdit!;
+      _nameController.text = account.name;
+      _issuerController.text = account.issuer ?? '';
+      _secretController.text = account.secret;
+      _intervalController.text = account.interval.toString();
+      _digitsController.text = account.digits.toString();
     }
   }
 
@@ -55,14 +57,14 @@ class _AddTokenScreenState extends State<AddTokenScreen> {
     Navigator.pop(context);
   }
 
-  void _saveToken(BuildContext context) async {
+  void _saveAccount(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
-      final tokenRepository = context.read<TokenRepository>();
-      final isEditing = widget.tokenToEdit != null;
+      final accountRepository = context.read<AccountRepository>();
+      final isEditing = widget.accountToEdit != null;
 
       if (isEditing) {
-        final updatedToken = TokensCompanion(
-          id: Value(widget.tokenToEdit!.id),
+        final updatedAccount = AccountsCompanion(
+          id: Value(widget.accountToEdit!.id),
           name: Value(_nameController.text),
           issuer: Value(_issuerController.text),
           secret: Value(_secretController.text),
@@ -70,9 +72,9 @@ class _AddTokenScreenState extends State<AddTokenScreen> {
           digits: Value(int.parse(_digitsController.text)),
         );
 
-        await tokenRepository.updateToken(updatedToken);
+        await accountRepository.updateAccount(updatedAccount);
       } else {
-        final token = TokensCompanion.insert(
+        final account = AccountsCompanion.insert(
           name: _nameController.text,
           issuer: Value(_issuerController.text),
           secret: _secretController.text,
@@ -80,7 +82,7 @@ class _AddTokenScreenState extends State<AddTokenScreen> {
           digits: int.parse(_digitsController.text),
         );
 
-        await tokenRepository.insertToken(token);
+        await accountRepository.insertAccount(account);
       }
 
       if (!context.mounted) {
@@ -94,6 +96,7 @@ class _AddTokenScreenState extends State<AddTokenScreen> {
   @override
   Widget build(BuildContext context) {
     final themProvider = context.watch<ThemeProvider>();
+    final l10n = context.l10n;
 
     return GestureDetector(
       onTap: () {
@@ -106,7 +109,9 @@ class _AddTokenScreenState extends State<AddTokenScreen> {
             onPressed: () => _goBack(context),
           ),
           title: Text(
-            widget.tokenToEdit != null ? 'Editar conta' : 'Adicionar conta',
+            widget.accountToEdit != null
+                ? l10n.accountScreen_editAccount_title
+                : l10n.accountScreen_addAccount_title,
           ),
           backgroundColor: themProvider.currentTheme.colors.primary,
           foregroundColor: Colors.white,
@@ -128,7 +133,7 @@ class _AddTokenScreenState extends State<AddTokenScreen> {
                       style: TextStyle(fontSize: 18, color: Colors.black),
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
-                        labelText: 'Nome',
+                        labelText: l10n.accountScreen_nameInput_label,
                         labelStyle: TextStyle(color: Colors.grey),
                         prefixIcon: Icon(Icons.account_box),
                         enabledBorder: OutlineInputBorder(),
@@ -142,7 +147,7 @@ class _AddTokenScreenState extends State<AddTokenScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Nome da conta vazio';
+                          return l10n.accountScreen_nameInput_emptyErrorMessage;
                         }
 
                         return null;
@@ -159,7 +164,7 @@ class _AddTokenScreenState extends State<AddTokenScreen> {
                       style: TextStyle(fontSize: 18, color: Colors.black),
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
-                        labelText: 'Emissor',
+                        labelText: l10n.accountScreen_issuerInput_label,
                         labelStyle: TextStyle(color: Colors.grey),
                         prefixIcon: Icon(Icons.supervisor_account),
                         enabledBorder: OutlineInputBorder(),
@@ -179,14 +184,23 @@ class _AddTokenScreenState extends State<AddTokenScreen> {
                       style: TextStyle(fontSize: 18, color: Colors.black),
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
-                        labelText: 'Segredo',
+                        labelText: l10n.accountScreen_secretInput_label,
                         labelStyle: TextStyle(color: Colors.grey),
                         prefixIcon: Icon(Icons.fingerprint),
                         suffixIcon: IconButton(
-                          icon: Icon(Icons.casino_outlined),
+                          icon: Icon(
+                            _showSecret
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
                           color: Colors.grey,
-                          tooltip: 'Gerar segredo',
-                          onPressed: () => print('Segredo gerado'),
+                          tooltip:
+                              l10n.accountScreen_secretInput_showSecretTooltip,
+                          onPressed: () {
+                            setState(() {
+                              _showSecret = !_showSecret;
+                            });
+                          },
                         ),
                         enabledBorder: OutlineInputBorder(),
                         focusedBorder: OutlineInputBorder(),
@@ -199,8 +213,11 @@ class _AddTokenScreenState extends State<AddTokenScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Chave não pode estar vazia';
+                          return l10n
+                              .accountScreen_secretInput_emptyErrorMessage;
                         }
+
+                        // return l10n.accountScreen_secretInput_invalidErrorMessage
 
                         return null;
                       },
@@ -226,7 +243,8 @@ class _AddTokenScreenState extends State<AddTokenScreen> {
                               ),
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(),
-                                labelText: 'Intervalo (segundos)',
+                                labelText:
+                                    l10n.accountScreen_intervalInput_label,
                                 labelStyle: TextStyle(color: Colors.grey),
                                 enabledBorder: OutlineInputBorder(),
                                 focusedBorder: OutlineInputBorder(),
@@ -239,11 +257,13 @@ class _AddTokenScreenState extends State<AddTokenScreen> {
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
-                                  return 'Invervalo vazio';
+                                  return l10n
+                                      .accountScreen_intervalInput_emptyErrorMessage;
                                 }
 
                                 if (int.parse(value) == 0) {
-                                  return 'Intervalo inválido';
+                                  return l10n
+                                      .accountScreen_intervalInput_invalidErrorMessage;
                                 }
 
                                 return null;
@@ -268,7 +288,7 @@ class _AddTokenScreenState extends State<AddTokenScreen> {
                               ),
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(),
-                                labelText: 'Dígitos',
+                                labelText: l10n.accountScreen_digitsInput_label,
                                 labelStyle: TextStyle(color: Colors.grey),
                                 enabledBorder: OutlineInputBorder(),
                                 focusedBorder: OutlineInputBorder(),
@@ -281,11 +301,13 @@ class _AddTokenScreenState extends State<AddTokenScreen> {
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
-                                  return 'Dígitos vazios';
+                                  return l10n
+                                      .accountScreen_digitsInput_emptyErrorMessage;
                                 }
 
                                 if (int.parse(value) == 0) {
-                                  return 'Dígitos inválidos';
+                                  return l10n
+                                      .accountScreen_digitsInput_invalidErrorMessage;
                                 }
 
                                 return null;
@@ -305,11 +327,11 @@ class _AddTokenScreenState extends State<AddTokenScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
-                        onPressed: () => _saveToken(context),
+                        onPressed: () => _saveAccount(context),
                         label: Text(
-                          widget.tokenToEdit != null
-                              ? 'Salvar Alterações'
-                              : 'Adicionar',
+                          widget.accountToEdit != null
+                              ? l10n.accountScreen_editAccount_confirmButton_label
+                              : l10n.accountScreen_addAccount_confirmButton_label,
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor:

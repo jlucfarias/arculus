@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:arculus/extensions/l10n_extension.dart';
 import 'package:arculus/providers/theme_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -44,6 +45,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
@@ -51,7 +53,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => _goBack(context),
         ),
-        title: Text('Configurações'),
+        title: Text(l10n.settingsScreen_title),
         backgroundColor: themeProvider.currentTheme.colors.primary,
         foregroundColor: Colors.white,
       ),
@@ -66,7 +68,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Tema'),
+                Text(l10n.settingsScreen_themeRow_title),
                 SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
@@ -76,9 +78,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       visualDensity: VisualDensity.standard,
                     ),
                     segments: [
-                      ButtonSegment(value: 'system', label: Text('Sistema')),
-                      ButtonSegment(value: 'light', label: Text('Claro')),
-                      ButtonSegment(value: 'dark', label: Text('Escuro')),
+                      ButtonSegment(
+                        value: 'system',
+                        label: Text(
+                          l10n.settingsScreen_themeRow_themeOptionSystem_label,
+                        ),
+                      ),
+                      ButtonSegment(
+                        value: 'light',
+                        label: Text(
+                          l10n.settingsScreen_themeRow_themeOptionLight_label,
+                        ),
+                      ),
+                      ButtonSegment(
+                        value: 'dark',
+                        label: Text(
+                          l10n.settingsScreen_themeRow_themeOptionDark_label,
+                        ),
+                      ),
                     ],
                     selected: _themeMode,
                     onSelectionChanged: (Set<String> themeMode) {

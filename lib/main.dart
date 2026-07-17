@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:arculus/l10n/app_localizations.dart';
 import 'package:arculus/providers/theme_provider.dart';
-import 'package:arculus/repositories/token_repository.dart';
+import 'package:arculus/repositories/account_repository.dart';
 import 'package:arculus/screens/home_screen.dart';
+import 'package:arculus/utils/app_constants.dart';
 import 'package:arculus/utils/app_database.dart';
 
 void main() {
@@ -14,7 +16,7 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
-        Provider<TokenRepository>(create: (_) => TokenRepository(database)),
+        Provider<AccountRepository>(create: (_) => AccountRepository(database)),
         ChangeNotifierProvider<ThemeProvider>(create: (_) => ThemeProvider()),
       ],
       child: const Arculus(),
@@ -31,6 +33,9 @@ class Arculus extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      title: AppConstants.title,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: const HomeScreen(),
     );
   }
