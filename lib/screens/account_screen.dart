@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:drift/drift.dart' hide Column;
 
 import 'package:arculus/extensions/l10n_extension.dart';
-import 'package:arculus/providers/theme_provider.dart';
 import 'package:arculus/utils/app_database.dart';
+import 'package:arculus/utils/app_theme.dart';
 import 'package:arculus/repositories/account_repository.dart';
 
 class AccountScreen extends StatefulWidget {
@@ -18,16 +19,13 @@ class AccountScreen extends StatefulWidget {
 
 class _AccountScreenState extends State<AccountScreen> {
   final _nameController = TextEditingController();
-  final _nameFieldKey = GlobalKey<FormFieldState>();
   final _issuerController = TextEditingController();
   final _secretController = TextEditingController();
-  final _secretFieldKey = GlobalKey<FormFieldState>();
   final _intervalController = TextEditingController(text: '30');
-  final _intervalFieldKey = GlobalKey<FormFieldState>();
   final _digitsController = TextEditingController(text: '6');
-  final _digitsFieldKey = GlobalKey<FormFieldState>();
   final _formKey = GlobalKey<FormState>();
   bool _showSecret = false;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -58,7 +56,17 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   void _saveAccount(BuildContext context) async {
-    if (_formKey.currentState!.validate()) {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+    });
+
+    final l10n = context.l10n;
+
+    try {
       final accountRepository = context.read<AccountRepository>();
       final isEditing = widget.accountToEdit != null;
 
@@ -90,18 +98,32 @@ class _AccountScreenState extends State<AccountScreen> {
       }
 
       _goBack(context);
+    } catch (e) {
+      if (!context.mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.accountScreen_saveAccount_saveErrorMessage),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final themProvider = context.watch<ThemeProvider>();
     final l10n = context.l10n;
 
     return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
+      behavior: HitTestBehavior.opaque,
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -113,37 +135,21 @@ class _AccountScreenState extends State<AccountScreen> {
                 ? l10n.accountScreen_editAccount_title
                 : l10n.accountScreen_addAccount_title,
           ),
-          backgroundColor: themProvider.currentTheme.colors.primary,
-          foregroundColor: Colors.white,
         ),
-        body: SafeArea(
-          child: Container(
-            decoration: BoxDecoration(
-              color: themProvider.currentTheme.colors.background,
-            ),
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(16, 12, 16, 12),
+        body: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal:ThemeSpacing.medium,
+            vertical: ThemeSpacing.halfMedium,
+          ),
               child: Form(
                 key: _formKey,
                 child: Column(
                   children: [
                     TextFormField(
                       controller: _nameController,
-                      key: _nameFieldKey,
-                      style: TextStyle(fontSize: 18, color: Colors.black),
                       decoration: InputDecoration(
-                        border: OutlineInputBorder(),
                         labelText: l10n.accountScreen_nameInput_label,
-                        labelStyle: TextStyle(color: Colors.grey),
                         prefixIcon: Icon(Icons.account_box),
-                        enabledBorder: OutlineInputBorder(),
-                        focusedBorder: OutlineInputBorder(),
-                        errorBorder: OutlineInputBorder(),
-                        focusedErrorBorder: OutlineInputBorder(),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 16,
-                        ),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -152,82 +158,47 @@ class _AccountScreenState extends State<AccountScreen> {
 
                         return null;
                       },
-                      onChanged: (text) {
-                        if (_nameFieldKey.currentState?.hasError ?? false) {
-                          _nameFieldKey.currentState?.reset();
-                        }
-                      },
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                     ),
-                    const SizedBox(height: 12),
+                const SizedBox(height: ThemeSpacing.halfMedium),
                     TextFormField(
                       controller: _issuerController,
-                      style: TextStyle(fontSize: 18, color: Colors.black),
                       decoration: InputDecoration(
-                        border: OutlineInputBorder(),
                         labelText: l10n.accountScreen_issuerInput_label,
-                        labelStyle: TextStyle(color: Colors.grey),
                         prefixIcon: Icon(Icons.supervisor_account),
-                        enabledBorder: OutlineInputBorder(),
-                        focusedBorder: OutlineInputBorder(),
-                        errorBorder: OutlineInputBorder(),
-                        focusedErrorBorder: OutlineInputBorder(),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 16,
-                        ),
                       ),
                     ),
-                    const SizedBox(height: 12),
+                const SizedBox(height: ThemeSpacing.halfMedium),
                     TextFormField(
                       controller: _secretController,
-                      key: _secretFieldKey,
-                      style: TextStyle(fontSize: 18, color: Colors.black),
+                      obscureText: !_showSecret,
                       decoration: InputDecoration(
-                        border: OutlineInputBorder(),
                         labelText: l10n.accountScreen_secretInput_label,
-                        labelStyle: TextStyle(color: Colors.grey),
                         prefixIcon: Icon(Icons.fingerprint),
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _showSecret
-                                ? Icons.visibility_off
-                                : Icons.visibility,
+                        _showSecret ? Icons.visibility_off : Icons.visibility,
                           ),
-                          color: Colors.grey,
-                          tooltip:
-                              l10n.accountScreen_secretInput_showSecretTooltip,
+                      tooltip: l10n.accountScreen_secretInput_showSecretTooltip,
                           onPressed: () {
                             setState(() {
                               _showSecret = !_showSecret;
                             });
                           },
                         ),
-                        enabledBorder: OutlineInputBorder(),
-                        focusedBorder: OutlineInputBorder(),
-                        errorBorder: OutlineInputBorder(),
-                        focusedErrorBorder: OutlineInputBorder(),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 16,
-                        ),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return l10n
-                              .accountScreen_secretInput_emptyErrorMessage;
+                      return l10n.accountScreen_secretInput_emptyErrorMessage;
                         }
 
                         // return l10n.accountScreen_secretInput_invalidErrorMessage
 
                         return null;
                       },
-                      onChanged: (text) {
-                        if (_secretFieldKey.currentState?.hasError ?? false) {
-                          _secretFieldKey.currentState?.reset();
-                        }
-                      },
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                     ),
-                    const SizedBox(height: 12),
+                const SizedBox(height: ThemeSpacing.halfMedium),
                     SizedBox(
                       width: double.infinity,
                       child: Row(
@@ -235,25 +206,12 @@ class _AccountScreenState extends State<AccountScreen> {
                           Expanded(
                             child: TextFormField(
                               controller: _intervalController,
-                              key: _intervalFieldKey,
                               keyboardType: TextInputType.number,
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.black,
-                              ),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
                               decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText:
-                                    l10n.accountScreen_intervalInput_label,
-                                labelStyle: TextStyle(color: Colors.grey),
-                                enabledBorder: OutlineInputBorder(),
-                                focusedBorder: OutlineInputBorder(),
-                                errorBorder: OutlineInputBorder(),
-                                focusedErrorBorder: OutlineInputBorder(),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 16,
-                                ),
+                            labelText: l10n.accountScreen_intervalInput_label,
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
@@ -261,43 +219,28 @@ class _AccountScreenState extends State<AccountScreen> {
                                       .accountScreen_intervalInput_emptyErrorMessage;
                                 }
 
-                                if (int.parse(value) == 0) {
+                                final parsed = int.tryParse(value);
+
+                                if (parsed == null || parsed <= 0) {
                                   return l10n
                                       .accountScreen_intervalInput_invalidErrorMessage;
                                 }
 
                                 return null;
                               },
-                              onChanged: (text) {
-                                if (_intervalFieldKey.currentState?.hasError ??
-                                    false) {
-                                  _intervalFieldKey.currentState?.reset();
-                                }
-                              },
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                             ),
                           ),
-                          const SizedBox(width: 8),
+                      const SizedBox(width: ThemeSpacing.small),
                           Expanded(
                             child: TextFormField(
                               controller: _digitsController,
-                              key: _digitsFieldKey,
                               keyboardType: TextInputType.number,
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.black,
-                              ),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
                               decoration: InputDecoration(
-                                border: OutlineInputBorder(),
                                 labelText: l10n.accountScreen_digitsInput_label,
-                                labelStyle: TextStyle(color: Colors.grey),
-                                enabledBorder: OutlineInputBorder(),
-                                focusedBorder: OutlineInputBorder(),
-                                errorBorder: OutlineInputBorder(),
-                                focusedErrorBorder: OutlineInputBorder(),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 16,
-                                ),
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
@@ -312,37 +255,32 @@ class _AccountScreenState extends State<AccountScreen> {
 
                                 return null;
                               },
-                              onChanged: (text) {
-                                if (_digitsFieldKey.currentState?.hasError ??
-                                    false) {
-                                  _digitsFieldKey.currentState?.reset();
-                                }
-                              },
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    SizedBox(height: 16),
+                SizedBox(height: ThemeSpacing.medium),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
-                        onPressed: () => _saveAccount(context),
+                    onPressed: _isSaving ? null : () => _saveAccount(context),
+                        icon: _isSaving
+                            ? const SizedBox(
+                            width: ThemeSpacing.medium,
+                            height: ThemeSpacing.medium,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : null,
                         label: Text(
                           widget.accountToEdit != null
                               ? l10n.accountScreen_editAccount_confirmButton_label
                               : l10n.accountScreen_addAccount_confirmButton_label,
                         ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              themProvider.currentTheme.colors.primary,
-                          foregroundColor: Colors.white,
-                        ),
                       ),
                     ),
                   ],
-                ),
-              ),
             ),
           ),
         ),

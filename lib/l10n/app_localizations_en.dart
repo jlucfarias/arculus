@@ -29,6 +29,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Press on + to add an account';
 
   @override
+  String get homeScreen_editAction_tooltipText => 'Edit account';
+
+  @override
+  String get homeScreen_deleteAction_tooltipText => 'Delete account';
+
+  @override
   String get homeScreen_optionsMenuAction_tooltipText => 'More options';
 
   @override
@@ -88,6 +94,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountScreen_addAccount_confirmButton_label => 'Save updates';
+
+  @override
+  String get accountScreen_saveAccount_saveErrorMessage => 'Save failed';
+
+  @override
+  String get settingsScreen_backButton_tooltip => 'Back';
 
   @override
   String get settingsScreen_title => 'Settings';

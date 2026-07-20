@@ -134,7 +134,19 @@ abstract class AppLocalizations {
   /// **'Press on + to add an account'**
   String get homeScreen_emptyAccountList_description;
 
-  /// Tooltip text for the more options action in the options menu
+  /// Tooltip text for the edit account action on the home screen
+  ///
+  /// In en, this message translates to:
+  /// **'Edit account'**
+  String get homeScreen_editAction_tooltipText;
+
+  /// Tooltip text for the delete account action on the home screen
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get homeScreen_deleteAction_tooltipText;
+
+  /// Tooltip text for the more options action on the home screen
   ///
   /// In en, this message translates to:
   /// **'More options'**
@@ -247,6 +259,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save updates'**
   String get accountScreen_addAccount_confirmButton_label;
+
+  /// Error message when saving account fails
+  ///
+  /// In en, this message translates to:
+  /// **'Save failed'**
+  String get accountScreen_saveAccount_saveErrorMessage;
+
+  /// Tooltip for back button on settings screen
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get settingsScreen_backButton_tooltip;
 
   /// Title of the settings screen
   ///

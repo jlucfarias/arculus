@@ -7,6 +7,7 @@ import 'package:arculus/repositories/account_repository.dart';
 import 'package:arculus/screens/home_screen.dart';
 import 'package:arculus/utils/app_constants.dart';
 import 'package:arculus/utils/app_database.dart';
+import 'package:arculus/utils/app_theme.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +35,9 @@ class Arculus extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: AppConstants.title,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeProvider.themeMode,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: const HomeScreen(),

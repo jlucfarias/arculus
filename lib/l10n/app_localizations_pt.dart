@@ -29,6 +29,12 @@ class AppLocalizationsPt extends AppLocalizations {
       'Toque no + para adicionar uma conta';
 
   @override
+  String get homeScreen_editAction_tooltipText => 'Editar conta';
+
+  @override
+  String get homeScreen_deleteAction_tooltipText => 'Excluir conta';
+
+  @override
   String get homeScreen_optionsMenuAction_tooltipText => 'Mais opções';
 
   @override
@@ -87,6 +93,12 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get accountScreen_addAccount_confirmButton_label =>
       'Salvar Alterações';
+
+  @override
+  String get accountScreen_saveAccount_saveErrorMessage => 'Falha ao salvar';
+
+  @override
+  String get settingsScreen_backButton_tooltip => 'Voltar';
 
   @override
   String get settingsScreen_title => 'Configurações';

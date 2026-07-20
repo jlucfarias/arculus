@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'package:arculus/extensions/l10n_extension.dart';
-import 'package:arculus/providers/theme_provider.dart';
 import 'package:arculus/repositories/account_repository.dart';
 import 'package:arculus/screens/account_screen.dart';
 import 'package:arculus/screens/settings_screen.dart';
 import 'package:arculus/utils/app_constants.dart';
 import 'package:arculus/utils/app_database.dart';
+import 'package:arculus/utils/app_theme.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,15 +18,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int? _selectedAccountId;
-
-  @override
-  void initState() {
-    super.initState();
-  }
+  final ValueNotifier<int?> _selectedAccountId = ValueNotifier<int?>(null);
 
   @override
   void dispose() {
+    _selectedAccountId.dispose();
     super.dispose();
   }
 
@@ -53,19 +50,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _selectAccount(int accountId) {
-    setState(() {
-      _selectedAccountId = accountId;
-    });
+    _selectedAccountId.value = accountId;
   }
 
   void _emptySelectedAccountList() {
-    setState(() {
-      _selectedAccountId = null;
-    });
+    _selectedAccountId.value = null;
   }
 
   void _deleteAccount({required int accountId}) {
     final l10n = context.l10n;
+    final colorScheme = Theme.of(context).colorScheme;
 
     showDialog(
       context: context,
@@ -83,6 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             TextButton(
+              style: TextButton.styleFrom(foregroundColor: colorScheme.error),
               onPressed: () async {
                 final accountRepository = context.read<AccountRepository>();
 
@@ -107,6 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _emptyList() {
     final l10n = context.l10n;
+    final textTheme = Theme.of(context).textTheme;
 
     return Center(
       child: Column(
@@ -114,105 +110,84 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Text(
             l10n.homeScreen_emptyAccountList_title,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            style: textTheme.headlineSmall,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: ThemeSpacing.small),
           Text(
             l10n.homeScreen_emptyAccountList_description,
-            style: TextStyle(fontSize: 14, color: Color(0xFF8888A8)),
+            style: textTheme.bodySmall,
           ),
         ],
       ),
     );
   }
 
-  Widget _accountList(List<Account> accounts) {
-    return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
-      itemCount: accounts.length,
-      itemBuilder: (ctx, i) {
-        final account = accounts[i];
+  Widget _buildAccountCard(Account account, bool isSelected) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
 
-        return GestureDetector(
-          onLongPress: () => _selectAccount(account.id),
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            decoration: BoxDecoration(
-              color: Colors.grey,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: ThemeSpacing.halfMedium),
+      child: Card(
+        color: isSelected ? colorScheme.primaryContainer : colorScheme.surface,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onLongPress: () {
+            HapticFeedback.mediumImpact();
+            _selectAccount(account.id);
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: ThemeSpacing.medium, vertical: ThemeSpacing.halfMedium),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                  padding: const EdgeInsets.fromLTRB(16, 18, 12, 18),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: colorScheme.primary,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: Center(
+                    child: Text(
+                      (account.issuer ?? account.name)
+                          .substring(0, 1)
+                          .toUpperCase(),
+                      style: textTheme.headlineLarge?.copyWith(
+                        color: colorScheme.onPrimary,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: ThemeSpacing.medium),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(
+                      Row(
                         children: [
-                          Container(
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: Colors.deepPurpleAccent,
-                              borderRadius: BorderRadius.circular(30),
+                          Text(
+                            account.issuer ?? account.name,
+                            style: textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w700,
                             ),
-                            child: Center(
-                              child: Text(
-                                (account.issuer ?? account.name)
-                                    .substring(0, 1)
-                                    .toUpperCase(),
-                                style: TextStyle(
-                                  fontSize: 32,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
+                          if (account.issuer != null) ...[
+                            const SizedBox(width: 10),
+                            Text(
+                              account.issuer != null ? '(${account.name})' : '',
+                              style: textTheme.bodyMedium,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ],
                       ),
-                      const SizedBox(width: 20),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      Row(
                         children: [
-                          Row(
-                            children: [
-                              Text(
-                                account.issuer ?? account.name,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                account.issuer != null ? '(${account.name})' : '',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Text(
-                                '123',
-                                style: TextStyle(
-                                  fontSize: 36,
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.1,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                '456',
-                                style: TextStyle(
-                                  fontSize: 36,
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.1,
-                                ),
-                              ),
-                            ],
-                          ),
+                          Text('123', style: textTheme.displayMedium),
+                          const SizedBox(width: ThemeSpacing.small),
+                          Text('456', style: textTheme.displayMedium),
                         ],
                       ),
                     ],
@@ -221,110 +196,109 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _accountList(List<Account> accounts) {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: ThemeSpacing.medium, vertical: ThemeSpacing.halfMedium),
+      itemCount: accounts.length,
+      itemBuilder: (ctx, i) {
+        final account = accounts[i];
+
+        return ValueListenableBuilder<int?>(
+          key: ValueKey(account.id),
+          valueListenable: _selectedAccountId,
+          builder: (context, selectedId, child) =>
+              _buildAccountCard(account, selectedId == account.id),
         );
       },
     );
   }
 
-  Widget? _buildEmptyAccountSelection() {
-    if (_selectedAccountId != null) {
-      return IconButton(
-        onPressed: () => _emptySelectedAccountList(),
-        icon: const Icon(Icons.close),
-      );
-    }
+  PreferredSizeWidget _buildAppBar() {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(kToolbarHeight),
+      child: ValueListenableBuilder<int?>(
+        valueListenable: _selectedAccountId,
+        builder: (context, selectedId, child) {
+          final l10n = context.l10n;
+          final isSelected = selectedId != null;
 
-    return null;
-  }
-
-  Widget? _buildTitle() {
-    if (_selectedAccountId == null) {
-      return Text(AppConstants.title);
-    }
-
-    return null;
-  }
-
-  Widget _buildEditSelectedAccountAction() {
-    if (_selectedAccountId != null) {
-      return IconButton(
-        onPressed: () => _addAccount(accountId: _selectedAccountId!),
-        icon: const Icon(Icons.edit),
-      );
-    }
-
-    return const SizedBox.shrink();
-  }
-
-  Widget _buildDeleteSelectedAccountAction() {
-    if (_selectedAccountId != null) {
-      return IconButton(
-        icon: const Icon(Icons.delete),
-        onPressed: () => _deleteAccount(accountId: _selectedAccountId!),
-      );
-    }
-
-    return const SizedBox.shrink();
-  }
-
-  Widget _buildOptionsMenuAction() {
-    if (_selectedAccountId != null) {
-      return const SizedBox.shrink();
-    }
-
-    final l10n = context.l10n;
-
-    return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert),
-      tooltip: l10n.homeScreen_optionsMenuAction_tooltipText,
-      onSelected: (String value) {
-        switch (value) {
-          case 'settings':
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => SettingsScreen()),
-            );
-            break;
-        }
-      },
-      itemBuilder: (BuildContext context) {
-        return [
-          PopupMenuItem<String>(
-            value: 'settings',
-            child: Text(l10n.homeScreen_optionsMenuAction_settingsItemLabel),
-          ),
-        ];
-      },
+          return AppBar(
+            automaticallyImplyLeading: false,
+            leading: isSelected
+                ? IconButton(
+                    onPressed: () => _emptySelectedAccountList(),
+                    icon: const Icon(Icons.close),
+                  )
+                : null,
+            title: !isSelected
+                ? Text(AppConstants.title)
+                : const SizedBox.shrink(),
+            actions: [
+              if (isSelected) ...[
+                IconButton(
+                  onPressed: () => _addAccount(accountId: selectedId),
+                  icon: const Icon(Icons.edit),
+                  tooltip: l10n.homeScreen_editAction_tooltipText,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () => _deleteAccount(accountId: selectedId),
+                  tooltip: l10n.homeScreen_deleteAction_tooltipText,
+                ),
+              ] else
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert),
+                  tooltip: l10n.homeScreen_optionsMenuAction_tooltipText,
+                  popUpAnimationStyle: AnimationStyle(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  ),
+                  onSelected: (String value) {
+                    switch (value) {
+                      case 'settings':
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SettingsScreen(),
+                          ),
+                        );
+                        break;
+                    }
+                  },
+                  itemBuilder: (BuildContext context) {
+                    return [
+                      PopupMenuItem<String>(
+                        value: 'settings',
+                        child: Text(
+                          l10n.homeScreen_optionsMenuAction_settingsItemLabel,
+                        ),
+                      ),
+                    ];
+                  },
+                ),
+            ],
+          );
+        },
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = context.watch<ThemeProvider>();
     final accountRepository = context.read<AccountRepository>();
     final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(
-        leading: _buildEmptyAccountSelection(),
-        title: _buildTitle(),
-        actions: [
-          _buildEditSelectedAccountAction(),
-          _buildDeleteSelectedAccountAction(),
-          _buildOptionsMenuAction(),
-        ],
-        backgroundColor: themeProvider.currentTheme.colors.primary,
-        foregroundColor: Colors.white,
-      ),
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FloatingActionButton.extended(
-            icon: const Icon(Icons.add_rounded),
-            label: Text(l10n.homeScreen_floatActionButton_label),
-            onPressed: () => _addAccount(),
-          ),
-        ],
+      appBar: _buildAppBar(),
+      floatingActionButton: FloatingActionButton.extended(
+        icon: const Icon(Icons.add_rounded),
+        label: Text(l10n.homeScreen_floatActionButton_label),
+        onPressed: () => _addAccount(),
       ),
       body: SafeArea(
         child: StreamBuilder<List<Account>>(
@@ -336,17 +310,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
             final accounts = snapshot.data ?? [];
 
-            return Container(
-              decoration: BoxDecoration(
-                color: themeProvider.currentTheme.colors.background,
-              ),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: accounts.isEmpty ? _emptyList() : _accountList(accounts),
-                  ),
-                ],
-              ),
+            return Column(
+              children: [
+                Expanded(
+                  child: accounts.isEmpty
+                      ? _emptyList()
+                      : _accountList(accounts),
+                ),
+              ],
             );
           },
         ),

@@ -24,9 +24,17 @@
   "@homeScreen_emptyAccountList_description": {
     "description": "Description of the empty account list on home screen"
   },
+  "homeScreen_editAction_tooltipText": "Edit account",
+  "@homeScreen_editAction_tooltipText": {
+    "description": "Tooltip text for the edit account action on the home screen"
+  },
+  "homeScreen_deleteAction_tooltipText": "Delete account",
+  "@homeScreen_deleteAction_tooltipText": {
+    "description": "Tooltip text for the delete account action on the home screen"
+  },
   "homeScreen_optionsMenuAction_tooltipText": "More options",
   "@homeScreen_optionsMenuAction_tooltipText": {
-    "description": "Tooltip text for the more options action in the options menu"
+    "description": "Tooltip text for the more options action on the home screen"
   },
   "homeScreen_optionsMenuAction_settingsItemLabel": "Settings",
   "@homeScreen_optionsMenuAction_settingsItemLabel": {
@@ -99,6 +107,14 @@
   "accountScreen_addAccount_confirmButton_label": "Save updates",
   "@accountScreen_addAccount_confirmButton_label": {
     "description": "Label of the confirm button on account screen when editing account"
+  },
+  "accountScreen_saveAccount_saveErrorMessage": "Save failed",
+  "@accountScreen_saveAccount_saveErrorMessage": {
+    "description": "Error message when saving account fails"
+  },
+  "settingsScreen_backButton_tooltip": "Back",
+  "@settingsScreen_backButton_tooltip": {
+    "description": "Tooltip for back button on settings screen"
   },
   "settingsScreen_title": "Settings",
   "@settingsScreen_title": {
