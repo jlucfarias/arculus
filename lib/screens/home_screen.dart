@@ -9,6 +9,7 @@ import 'package:arculus/screens/settings_screen.dart';
 import 'package:arculus/utils/app_constants.dart';
 import 'package:arculus/utils/app_database.dart';
 import 'package:arculus/utils/app_theme.dart';
+import 'package:arculus/widgets/token_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -122,88 +123,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildAccountCard(Account account, bool isSelected) {
-    final textTheme = Theme.of(context).textTheme;
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: ThemeSpacing.halfMedium),
-      child: Card(
-        color: isSelected ? colorScheme.primaryContainer : colorScheme.surface,
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onLongPress: () {
-            HapticFeedback.mediumImpact();
-            _selectAccount(account.id);
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: ThemeSpacing.medium, vertical: ThemeSpacing.halfMedium),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: colorScheme.primary,
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: Center(
-                    child: Text(
-                      (account.issuer ?? account.name)
-                          .substring(0, 1)
-                          .toUpperCase(),
-                      style: textTheme.headlineLarge?.copyWith(
-                        color: colorScheme.onPrimary,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: ThemeSpacing.medium),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            account.issuer ?? account.name,
-                            style: textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          if (account.issuer != null) ...[
-                            const SizedBox(width: 10),
-                            Text(
-                              account.issuer != null ? '(${account.name})' : '',
-                              style: textTheme.bodyMedium,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Text('123', style: textTheme.displayMedium),
-                          const SizedBox(width: ThemeSpacing.small),
-                          Text('456', style: textTheme.displayMedium),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _accountList(List<Account> accounts) {
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: ThemeSpacing.medium, vertical: ThemeSpacing.halfMedium),
+      padding: const EdgeInsets.symmetric(
+        horizontal: ThemeSpacing.medium,
+        vertical: ThemeSpacing.halfMedium,
+      ),
       itemCount: accounts.length,
       itemBuilder: (ctx, i) {
         final account = accounts[i];
@@ -211,8 +136,14 @@ class _HomeScreenState extends State<HomeScreen> {
         return ValueListenableBuilder<int?>(
           key: ValueKey(account.id),
           valueListenable: _selectedAccountId,
-          builder: (context, selectedId, child) =>
-              _buildAccountCard(account, selectedId == account.id),
+          builder: (context, selectedId, child) => TokenCard(
+            account: account,
+            isSelected: selectedId == account.id,
+            onSelect: () {
+              HapticFeedback.mediumImpact();
+              _selectAccount(account.id);
+            },
+          ),
         );
       },
     );

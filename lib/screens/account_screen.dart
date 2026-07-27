@@ -4,9 +4,13 @@ import 'package:provider/provider.dart';
 import 'package:drift/drift.dart' hide Column;
 
 import 'package:arculus/extensions/l10n_extension.dart';
+import 'package:arculus/repositories/account_repository.dart';
+import 'package:arculus/services/otp_service.dart';
 import 'package:arculus/utils/app_database.dart';
 import 'package:arculus/utils/app_theme.dart';
-import 'package:arculus/repositories/account_repository.dart';
+
+final int defaultInterval = 30;
+final int defaultDigits = 6;
 
 class AccountScreen extends StatefulWidget {
   final Account? accountToEdit;
@@ -21,8 +25,12 @@ class _AccountScreenState extends State<AccountScreen> {
   final _nameController = TextEditingController();
   final _issuerController = TextEditingController();
   final _secretController = TextEditingController();
-  final _intervalController = TextEditingController(text: '30');
-  final _digitsController = TextEditingController(text: '6');
+  final _intervalController = TextEditingController(
+    text: defaultInterval.toString(),
+  );
+  final _digitsController = TextEditingController(
+    text: defaultDigits.toString(),
+  );
   final _formKey = GlobalKey<FormState>();
   bool _showSecret = false;
   bool _isSaving = false;
@@ -69,25 +77,32 @@ class _AccountScreenState extends State<AccountScreen> {
     try {
       final accountRepository = context.read<AccountRepository>();
       final isEditing = widget.accountToEdit != null;
+      final name = _nameController.text.trim();
+      final secret = _secretController.text
+          .trim()
+          .replaceAll(' ', '')
+          .toUpperCase();
 
       if (isEditing) {
         final updatedAccount = AccountsCompanion(
           id: Value(widget.accountToEdit!.id),
-          name: Value(_nameController.text),
+          name: Value(name),
           issuer: Value(_issuerController.text),
-          secret: Value(_secretController.text),
-          interval: Value(int.parse(_intervalController.text)),
-          digits: Value(int.parse(_digitsController.text)),
+          secret: Value(secret),
+          interval: Value(
+            int.tryParse(_intervalController.text) ?? defaultInterval,
+          ),
+          digits: Value(int.tryParse(_digitsController.text) ?? defaultDigits),
         );
 
         await accountRepository.updateAccount(updatedAccount);
       } else {
         final account = AccountsCompanion.insert(
-          name: _nameController.text,
+          name: name,
           issuer: Value(_issuerController.text),
-          secret: _secretController.text,
-          interval: int.parse(_intervalController.text),
-          digits: int.parse(_digitsController.text),
+          secret: secret,
+          interval: int.tryParse(_intervalController.text) ?? defaultInterval,
+          digits: int.tryParse(_digitsController.text) ?? defaultDigits,
         );
 
         await accountRepository.insertAccount(account);
@@ -138,149 +153,151 @@ class _AccountScreenState extends State<AccountScreen> {
         ),
         body: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal:ThemeSpacing.medium,
+            horizontal: ThemeSpacing.medium,
             vertical: ThemeSpacing.halfMedium,
           ),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: InputDecoration(
-                        labelText: l10n.accountScreen_nameInput_label,
-                        prefixIcon: Icon(Icons.account_box),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return l10n.accountScreen_nameInput_emptyErrorMessage;
-                        }
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    labelText: l10n.accountScreen_nameInput_label,
+                    prefixIcon: Icon(Icons.account_box),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return l10n.accountScreen_nameInput_emptyErrorMessage;
+                    }
 
-                        return null;
-                      },
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                    ),
+                    return null;
+                  },
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                ),
                 const SizedBox(height: ThemeSpacing.halfMedium),
-                    TextFormField(
-                      controller: _issuerController,
-                      decoration: InputDecoration(
-                        labelText: l10n.accountScreen_issuerInput_label,
-                        prefixIcon: Icon(Icons.supervisor_account),
-                      ),
-                    ),
+                TextFormField(
+                  controller: _issuerController,
+                  decoration: InputDecoration(
+                    labelText: l10n.accountScreen_issuerInput_label,
+                    prefixIcon: Icon(Icons.supervisor_account),
+                  ),
+                ),
                 const SizedBox(height: ThemeSpacing.halfMedium),
-                    TextFormField(
-                      controller: _secretController,
-                      obscureText: !_showSecret,
-                      decoration: InputDecoration(
-                        labelText: l10n.accountScreen_secretInput_label,
-                        prefixIcon: Icon(Icons.fingerprint),
-                        suffixIcon: IconButton(
-                          icon: Icon(
+                TextFormField(
+                  controller: _secretController,
+                  obscureText: !_showSecret,
+                  decoration: InputDecoration(
+                    labelText: l10n.accountScreen_secretInput_label,
+                    prefixIcon: Icon(Icons.fingerprint),
+                    suffixIcon: IconButton(
+                      icon: Icon(
                         _showSecret ? Icons.visibility_off : Icons.visibility,
-                          ),
+                      ),
                       tooltip: l10n.accountScreen_secretInput_showSecretTooltip,
-                          onPressed: () {
-                            setState(() {
-                              _showSecret = !_showSecret;
-                            });
+                      onPressed: () {
+                        setState(() {
+                          _showSecret = !_showSecret;
+                        });
+                      },
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return l10n.accountScreen_secretInput_emptyErrorMessage;
+                    }
+
+                    if (!OtpService.isValidSecret(value)) {
+                      return l10n.accountScreen_secretInput_invalidErrorMessage;
+                    }
+
+                    return null;
+                  },
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                ),
+                const SizedBox(height: ThemeSpacing.halfMedium),
+                SizedBox(
+                  width: double.infinity,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: _intervalController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          decoration: InputDecoration(
+                            labelText: l10n.accountScreen_intervalInput_label,
+                          ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return l10n
+                                  .accountScreen_intervalInput_emptyErrorMessage;
+                            }
+
+                            final parsed = int.tryParse(value);
+
+                            if (parsed == null || parsed <= 0) {
+                              return l10n
+                                  .accountScreen_intervalInput_invalidErrorMessage;
+                            }
+
+                            return null;
                           },
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                         ),
                       ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                      return l10n.accountScreen_secretInput_emptyErrorMessage;
-                        }
-
-                        // return l10n.accountScreen_secretInput_invalidErrorMessage
-
-                        return null;
-                      },
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                    ),
-                const SizedBox(height: ThemeSpacing.halfMedium),
-                    SizedBox(
-                      width: double.infinity,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: _intervalController,
-                              keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                              decoration: InputDecoration(
-                            labelText: l10n.accountScreen_intervalInput_label,
-                              ),
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return l10n
-                                      .accountScreen_intervalInput_emptyErrorMessage;
-                                }
-
-                                final parsed = int.tryParse(value);
-
-                                if (parsed == null || parsed <= 0) {
-                                  return l10n
-                                      .accountScreen_intervalInput_invalidErrorMessage;
-                                }
-
-                                return null;
-                              },
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                            ),
-                          ),
                       const SizedBox(width: ThemeSpacing.small),
-                          Expanded(
-                            child: TextFormField(
-                              controller: _digitsController,
-                              keyboardType: TextInputType.number,
+                      Expanded(
+                        child: TextFormField(
+                          controller: _digitsController,
+                          keyboardType: TextInputType.number,
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly,
                           ],
-                              decoration: InputDecoration(
-                                labelText: l10n.accountScreen_digitsInput_label,
-                              ),
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return l10n
-                                      .accountScreen_digitsInput_emptyErrorMessage;
-                                }
-
-                                if (int.parse(value) == 0) {
-                                  return l10n
-                                      .accountScreen_digitsInput_invalidErrorMessage;
-                                }
-
-                                return null;
-                              },
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                            ),
+                          decoration: InputDecoration(
+                            labelText: l10n.accountScreen_digitsInput_label,
                           ),
-                        ],
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return l10n
+                                  .accountScreen_digitsInput_emptyErrorMessage;
+                            }
+
+                            if (int.parse(value) == 0) {
+                              return l10n
+                                  .accountScreen_digitsInput_invalidErrorMessage;
+                            }
+
+                            return null;
+                          },
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                        ),
                       ),
-                    ),
+                    ],
+                  ),
+                ),
                 SizedBox(height: ThemeSpacing.medium),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
                     onPressed: _isSaving ? null : () => _saveAccount(context),
-                        icon: _isSaving
-                            ? const SizedBox(
+                    icon: _isSaving
+                        ? const SizedBox(
                             width: ThemeSpacing.medium,
                             height: ThemeSpacing.medium,
                             child: CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : null,
-                        label: Text(
-                          widget.accountToEdit != null
-                              ? l10n.accountScreen_editAccount_confirmButton_label
-                              : l10n.accountScreen_addAccount_confirmButton_label,
-                        ),
-                      ),
+                          )
+                        : null,
+                    label: Text(
+                      widget.accountToEdit != null
+                          ? l10n.accountScreen_editAccount_confirmButton_label
+                          : l10n.accountScreen_addAccount_confirmButton_label,
                     ),
-                  ],
+                  ),
+                ),
+              ],
             ),
           ),
         ),

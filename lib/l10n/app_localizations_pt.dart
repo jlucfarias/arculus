@@ -68,6 +68,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get accountScreen_secretInput_emptyErrorMessage => 'Segredo vazio';
 
   @override
+  String get accountScreen_secretInput_invalidErrorMessage =>
+      'Segredo inválido (Base32)';
+
+  @override
   String get accountScreen_intervalInput_label => 'Intervalo (segundos)';
 
   @override
@@ -88,10 +92,10 @@ class AppLocalizationsPt extends AppLocalizations {
       'Dígitos inválidos';
 
   @override
-  String get accountScreen_editAccount_confirmButton_label => 'Adicionar';
+  String get accountScreen_addAccount_confirmButton_label => 'Adicionar';
 
   @override
-  String get accountScreen_addAccount_confirmButton_label =>
+  String get accountScreen_editAccount_confirmButton_label =>
       'Salvar Alterações';
 
   @override

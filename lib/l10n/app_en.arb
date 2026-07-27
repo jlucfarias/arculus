@@ -76,6 +76,10 @@
   "@accountScreen_secretInput_emptyErrorMessage": {
     "description": "Error message when secret input is empty"
   },
+  "accountScreen_secretInput_invalidErrorMessage": "Secret is invalid (Base32)",
+  "@accountScreen_secretInput_invalidErrorMessage": {
+    "description": "Error message when secret input is invalid"
+  },
   "accountScreen_intervalInput_label": "Interval (seconds)",
   "@accountScreen_intervalInput_label": {
     "description": "Label of the interval input on account screen"
@@ -100,12 +104,12 @@
   "@accountScreen_digitsInput_invalidErrorMessage": {
     "description": "Error message when digits input is invalid"
   },
-  "accountScreen_editAccount_confirmButton_label": "Add",
-  "@accountScreen_editAccount_confirmButton_label": {
+  "accountScreen_addAccount_confirmButton_label": "Add",
+  "@accountScreen_addAccount_confirmButton_label": {
     "description": "Label of the confirm button on account screen when adding account"
   },
-  "accountScreen_addAccount_confirmButton_label": "Save updates",
-  "@accountScreen_addAccount_confirmButton_label": {
+  "accountScreen_editAccount_confirmButton_label": "Save updates",
+  "@accountScreen_editAccount_confirmButton_label": {
     "description": "Label of the confirm button on account screen when editing account"
   },
   "accountScreen_saveAccount_saveErrorMessage": "Save failed",

@@ -212,6 +212,12 @@ abstract class AppLocalizations {
   /// **'Secret is empty'**
   String get accountScreen_secretInput_emptyErrorMessage;
 
+  /// Error message when secret input is invalid
+  ///
+  /// In en, this message translates to:
+  /// **'Secret is invalid (Base32)'**
+  String get accountScreen_secretInput_invalidErrorMessage;
+
   /// Label of the interval input on account screen
   ///
   /// In en, this message translates to:
@@ -252,13 +258,13 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Add'**
-  String get accountScreen_editAccount_confirmButton_label;
+  String get accountScreen_addAccount_confirmButton_label;
 
   /// Label of the confirm button on account screen when editing account
   ///
   /// In en, this message translates to:
   /// **'Save updates'**
-  String get accountScreen_addAccount_confirmButton_label;
+  String get accountScreen_editAccount_confirmButton_label;
 
   /// Error message when saving account fails
   ///

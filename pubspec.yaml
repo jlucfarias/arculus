@@ -10,6 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # OTP / TOTP
+  otp: ^3.2.0
+
   # State
   provider: ^6.1.2
 

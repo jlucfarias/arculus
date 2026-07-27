@@ -14,13 +14,17 @@
 
 # Arculus
 
-O Arculus é um aplicativo de autenticação gratuito, de código aberto e multi-plataforma feito com Flutter. Ele oferece uma maneira intuitiva de gerenciar os seus tokens de segundo fator de autenticação (2FA).
+O Arculus é um aplicativo de autenticação gratuito, de código aberto e multi-plataforma feito com Flutter. Ele oferece uma maneira intuitiva de gerenciar os seus tokens de segundo fator de autenticação (2FA) com suporte ao TOTP.
 
 ## Funcionalidades
 
 - **Gratuito e de código aberto**
 
+- **Compatibilidade**
+  - Suporta o padrão TOTP (Senha de uso único baseada em tempo)
+
 - **Organização e usabilidade**
+  - Ícones automáticos
   - Temas claro e escuro
 
 ## Licença

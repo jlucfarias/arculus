@@ -14,13 +14,17 @@
 
 # Arculus
 
-Arculus is a free, open-source, multiplatform authentication app built with Flutter. It offers a intuitive way to manage your Two-Factor Authentication (2FA) tokens.
+Arculus is a free, open-source, multiplatform authentication app built with Flutter. It offers a intuitive way to manage your Two-Factor Authentication (2FA) tokens, with support for TOTP.
 
 ## Features
 
 - **Free and open source**
 
+- **Compatibility**
+  - Supports the TOTP (Time-based One-Time Password) standard
+
 - **Organization and usability**
+  - Automatic icons
   - Light and Dark themes
 
 ## License

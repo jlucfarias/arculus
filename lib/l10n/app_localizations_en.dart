@@ -69,6 +69,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountScreen_secretInput_emptyErrorMessage => 'Secret is empty';
 
   @override
+  String get accountScreen_secretInput_invalidErrorMessage =>
+      'Secret is invalid (Base32)';
+
+  @override
   String get accountScreen_intervalInput_label => 'Interval (seconds)';
 
   @override
@@ -90,10 +94,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Digits is invalid';
 
   @override
-  String get accountScreen_editAccount_confirmButton_label => 'Add';
+  String get accountScreen_addAccount_confirmButton_label => 'Add';
 
   @override
-  String get accountScreen_addAccount_confirmButton_label => 'Save updates';
+  String get accountScreen_editAccount_confirmButton_label => 'Save updates';
 
   @override
   String get accountScreen_saveAccount_saveErrorMessage => 'Save failed';
