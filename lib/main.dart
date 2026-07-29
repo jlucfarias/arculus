@@ -36,7 +36,7 @@ class Arculus extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: AppConstants.title,
       theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
+      darkTheme: AppTheme.darkTheme(isAmoled: themeProvider.useAmoled),
       themeMode: themeProvider.themeMode,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,

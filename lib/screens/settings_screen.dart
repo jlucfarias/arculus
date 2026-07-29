@@ -21,7 +21,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final themeProvider = context.watch<ThemeProvider>();
-    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -30,18 +30,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
           tooltip: l10n.settingsScreen_backButton_tooltip,
           onPressed: () => _goBack(context),
         ),
-        title: Text(l10n.settingsScreen_title, style: textTheme.titleMedium),
+        title: Text(l10n.settingsScreen_title),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: ThemeSpacing.medium, vertical: ThemeSpacing.halfMedium),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(l10n.settingsScreen_themeRow_title),
+            SizedBox(height: ThemeSpacing.halfMedium),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: ThemeSpacing.medium),
+              child: Text(l10n.settingsScreen_themeRow_title, style: ThemeTypography.bodyBold(colorScheme.primary)),
+            ),
               SizedBox(height: ThemeSpacing.medium),
-              SizedBox(
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: ThemeSpacing.medium),
+              child: SizedBox(
                 width: double.infinity,
                 child: SegmentedButton(
                   segments: [
@@ -70,7 +74,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
               ),
-            ],
+            ),
+            SizedBox(height: ThemeSpacing.halfMedium),
+            SizedBox(
+              width: double.infinity,
+              child: SwitchListTile(
+                title: Text('Modo noturno com preto absoluto (AMOLED)'),
+                value: themeProvider.useAmoled,
+                onChanged: (_) {
+                  themeProvider.toggleAmoledUse();
+                },
+                //controlAffinity: ListTileControlAffinity.leading,
+              ),
           ),
         ),
       ),

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 class ThemeColors {
   ThemeColors._();
 
+  static const Color amoledBlack = Color(0xFF000000);
+
   static const Color primaryLight = Color(0xFF1868DB);
   static const Color primaryHoverLight = Color(0xFF1558BC);
   static const Color primaryActiveLight = Color(0xFF144794);
@@ -72,6 +74,7 @@ class ThemeColors {
 class ThemeSpacing {
   ThemeSpacing._();
 
+  static const double none = 0;
   static const double xsmall = 4;
   static const double small = 8;
   static const double halfMedium = 12;
@@ -173,6 +176,9 @@ class ThemeTypography {
 
   static TextStyle body(Color color) =>
       bodyMd.copyWith(fontWeight: regular, color: color);
+
+  static TextStyle bodyBold(Color color) =>
+      bodyMd.copyWith(fontWeight: bold, color: color);
 }
 
 class AppTheme {
@@ -201,8 +207,8 @@ class AppTheme {
     return _buildTheme(colorScheme, brightness: Brightness.light);
   }
 
-  static ThemeData get darkTheme {
-    const colorScheme = ColorScheme.dark(
+  static ThemeData darkTheme({bool isAmoled = false}) {
+    final colorScheme = ColorScheme.dark(
       primary: ThemeColors.primaryDark,
       onPrimary: ThemeColors.bodyInverseDark,
       primaryContainer: ThemeColors.blurpleStrong,
@@ -211,9 +217,11 @@ class AppTheme {
       onSecondary: ThemeColors.bodyInverseDark,
       error: ThemeColors.dangerDark,
       onError: ThemeColors.bodyInverseDark,
-      surface: ThemeColors.backgroundDark,
+      surface: isAmoled ? ThemeColors.amoledBlack : ThemeColors.backgroundDark,
       onSurface: ThemeColors.bodyDark,
-      surfaceContainerHighest: ThemeColors.backgroundSecondaryDark,
+      surfaceContainerHighest: isAmoled
+          ? ThemeColors.amoledBlack
+          : ThemeColors.backgroundSecondaryDark,
       onSurfaceVariant: ThemeColors.bodyDimmedDark,
       outline: ThemeColors.formFieldBorderDark,
       outlineVariant: ThemeColors.borderDark,
@@ -221,15 +229,24 @@ class AppTheme {
       onInverseSurface: ThemeColors.bodyInverseDark,
     );
 
-    return _buildTheme(colorScheme, brightness: Brightness.dark);
+    return _buildTheme(
+      colorScheme,
+      brightness: Brightness.dark,
+      isAmoled: isAmoled,
+    );
   }
 
   static ThemeData _buildTheme(
     ColorScheme colorScheme, {
+    bool isAmoled = false,
     required Brightness brightness,
   }) {
     final bodyColor = colorScheme.onSurface;
     final dimmedColor = colorScheme.onSurfaceVariant;
+    final isLightTheme = brightness == Brightness.light;
+    final elevatedSurfaceColor = isAmoled
+        ? ThemeColors.amoledBlack
+        : (isLightTheme ? ThemeColors.grey2 : ThemeColors.grey8);
 
     return ThemeData(
       useMaterial3: true,
@@ -278,9 +295,7 @@ class AppTheme {
         backgroundColor: colorScheme.surface,
         foregroundColor: bodyColor,
         surfaceTintColor: Colors.transparent,
-        titleTextStyle: ThemeTypography.mainTitle(
-          bodyColor,
-        ).copyWith(fontSize: ThemeTypography.bodyLg.fontSize),
+        titleTextStyle: ThemeTypography.title(bodyColor),
         iconTheme: IconThemeData(color: bodyColor),
       ),
 
@@ -385,7 +400,11 @@ class AppTheme {
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(ThemeRadii.r150),
-          side: BorderSide(color: colorScheme.outlineVariant),
+          side: BorderSide(
+            color: isLightTheme
+                ? colorScheme.outlineVariant
+                : colorScheme.outline,
+          ),
         ),
       ),
 
@@ -437,25 +456,36 @@ class AppTheme {
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return colorScheme.primary;
-          }
-
-          if (brightness == Brightness.light) {
             return ThemeColors.greyWhite;
           }
 
-          return ThemeColors.grey4;
+          if (brightness == Brightness.light) {
+            return ThemeColors.grey6;
+          }
+
+          return ThemeColors.grey5;
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return colorScheme.primary.withValues(alpha: 0.5);
+            return colorScheme.primary;
           }
 
           if (brightness == Brightness.light) {
             return ThemeColors.grey3;
           }
 
-          return ThemeColors.grey6;
+          return ThemeColors.grey7;
+        }),
+        trackOutlineColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return colorScheme.primary;
+          }
+
+          if (brightness == Brightness.light) {
+            return ThemeColors.grey6;
+          }
+
+          return ThemeColors.grey5;
         }),
       ),
 
@@ -512,9 +542,7 @@ class AppTheme {
       ),
 
       bannerTheme: MaterialBannerThemeData(
-        backgroundColor: brightness == Brightness.light
-            ? ThemeColors.backgroundSecondaryLight
-            : ThemeColors.backgroundSecondaryDark,
+        backgroundColor: colorScheme.surfaceContainerHighest,
         contentTextStyle: ThemeTypography.body(bodyColor),
         padding: const EdgeInsets.symmetric(
           horizontal: ThemeSpacing.medium,
@@ -535,11 +563,7 @@ class AppTheme {
 
       dropdownMenuTheme: DropdownMenuThemeData(
         menuStyle: MenuStyle(
-          backgroundColor: WidgetStatePropertyAll(
-            brightness == Brightness.light
-                ? ThemeColors.greyWhite
-                : ThemeColors.grey8,
-          ),
+          backgroundColor: WidgetStatePropertyAll(elevatedSurfaceColor),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(ThemeRadii.r75),
@@ -551,11 +575,7 @@ class AppTheme {
 
       menuTheme: MenuThemeData(
         style: MenuStyle(
-          backgroundColor: WidgetStatePropertyAll(
-            brightness == Brightness.light
-                ? ThemeColors.greyWhite
-                : ThemeColors.grey8,
-          ),
+          backgroundColor: WidgetStatePropertyAll(elevatedSurfaceColor),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(ThemeRadii.r75),
@@ -579,9 +599,7 @@ class AppTheme {
       ),
 
       popupMenuTheme: PopupMenuThemeData(
-        color: brightness == Brightness.light
-            ? ThemeColors.grey2
-            : ThemeColors.grey8,
+        color: elevatedSurfaceColor,
         textStyle: ThemeTypography.body(bodyColor),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(ThemeRadii.r75),
@@ -689,7 +707,11 @@ class AppTheme {
             return bodyColor;
           }),
           side: WidgetStatePropertyAll(
-            BorderSide(color: colorScheme.outlineVariant),
+            BorderSide(
+              color: isLightTheme
+                  ? colorScheme.outlineVariant
+                  : colorScheme.outline,
+            ),
           ),
           textStyle: WidgetStatePropertyAll(
             ThemeTypography.bodySm.copyWith(fontWeight: ThemeTypography.medium),
@@ -706,6 +728,48 @@ class AppTheme {
             ),
           ),
         ),
+      ),
+
+      listTileTheme: ListTileThemeData(
+        dense: false,
+        isThreeLine: false,
+        visualDensity: VisualDensity.standard,
+        enableFeedback: true,
+        tileColor: colorScheme.surface,
+        selectedTileColor: brightness == Brightness.light
+            ? ThemeColors.blurpleLight
+            : ThemeColors.blurpleStrong,
+        iconColor: bodyColor,
+        textColor: bodyColor,
+        selectedColor: colorScheme.primary,
+        titleTextStyle: ThemeTypography.bodyMd.copyWith(
+          color: bodyColor,
+          fontWeight: ThemeTypography.medium,
+        ),
+        subtitleTextStyle: ThemeTypography.bodySm.copyWith(color: dimmedColor),
+        leadingAndTrailingTextStyle: ThemeTypography.bodySm.copyWith(
+          color: dimmedColor,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: ThemeSpacing.medium,
+          vertical: ThemeSpacing.small,
+        ),
+        horizontalTitleGap: ThemeSpacing.small + ThemeSpacing.xsmall,
+        minVerticalPadding: ThemeSpacing.small,
+        minLeadingWidth: ThemeSpacing.large,
+        minTileHeight: ThemeSpacing.xlarge,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        style: ListTileStyle.list,
+        titleAlignment: ListTileTitleAlignment.center,
+        controlAffinity: ListTileControlAffinity.platform,
+
+        mouseCursor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.disabled)) {
+            return SystemMouseCursors.forbidden;
+          }
+
+          return SystemMouseCursors.click;
+        }),
       ),
 
       splashFactory: NoSplash.splashFactory,
