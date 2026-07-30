@@ -139,5 +139,29 @@
   "settingsScreen_themeRow_themeOptionDark_label": "Dark",
   "@settingsScreen_themeRow_themeOptionDark_label": {
     "description": "Label of the dark theme option in settings screen"
+  },
+  "settingsScreen_AmoledThemeSwitch_label": "Dark mode with full black (AMOLED)",
+  "@settingsScreen_AmoledThemeSwitch_label": {
+    "description": "Label of the Amoled theme switch in settings screen"
+  },
+  "settingsScreen_languageDialogTrigger_label": "Language",
+  "@settingsScreen_languageDialogTrigger_label": {
+    "description": "Label of the trigger that open language selection dialog in settings screen"
+  },
+  "settingsScreen_languageDialog_title": "Choose language",
+  "@settingsScreen_languageDialog_title": {
+    "description": "Title of the language selection dialog in settings screen"
+  },
+  "settingsScreen_languageDialog_systemDefaultOption_label": "System default",
+  "@settingsScreen_languageDialog_systemDefaultOption_label": {
+    "description": "Label of the system default language option on language dialog in settings screen"
+  },
+  "settingsScreen_languageDialog_cancelButton_label": "Cancel",
+  "@settingsScreen_languageDialog_cancelButton_label": {
+    "description": "Label of the cancel button on language dialog in settings screen"
+  },
+  "settingsScreen_languageDialog_confirmButton_label": "Confirm",
+  "@settingsScreen_languageDialog_confirmButton_label": {
+    "description": "Label of the confirm button on language dialog in settings screen"
   }
 }

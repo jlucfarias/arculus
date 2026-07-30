@@ -307,6 +307,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dark'**
   String get settingsScreen_themeRow_themeOptionDark_label;
+
+  /// Label of the Amoled theme switch in settings screen
+  ///
+  /// In en, this message translates to:
+  /// **'Dark mode with full black (AMOLED)'**
+  String get settingsScreen_AmoledThemeSwitch_label;
+
+  /// Label of the trigger that open language selection dialog in settings screen
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settingsScreen_languageDialogTrigger_label;
+
+  /// Title of the language selection dialog in settings screen
+  ///
+  /// In en, this message translates to:
+  /// **'Choose language'**
+  String get settingsScreen_languageDialog_title;
+
+  /// Label of the system default language option on language dialog in settings screen
+  ///
+  /// In en, this message translates to:
+  /// **'System default'**
+  String get settingsScreen_languageDialog_systemDefaultOption_label;
+
+  /// Label of the cancel button on language dialog in settings screen
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get settingsScreen_languageDialog_cancelButton_label;
+
+  /// Label of the confirm button on language dialog in settings screen
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get settingsScreen_languageDialog_confirmButton_label;
 }
 
 class _AppLocalizationsDelegate

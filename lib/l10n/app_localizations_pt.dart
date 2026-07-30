@@ -118,4 +118,24 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get settingsScreen_themeRow_themeOptionDark_label => 'Escuro';
+
+  @override
+  String get settingsScreen_AmoledThemeSwitch_label =>
+      'Modo noturno com preto absoluto (AMOLED)';
+
+  @override
+  String get settingsScreen_languageDialogTrigger_label => 'Idioma';
+
+  @override
+  String get settingsScreen_languageDialog_title => 'Escolha o idioma';
+
+  @override
+  String get settingsScreen_languageDialog_systemDefaultOption_label =>
+      'Padrão do sistema';
+
+  @override
+  String get settingsScreen_languageDialog_cancelButton_label => 'Cancelar';
+
+  @override
+  String get settingsScreen_languageDialog_confirmButton_label => 'Confirmar';
 }

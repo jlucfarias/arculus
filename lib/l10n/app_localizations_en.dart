@@ -119,4 +119,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsScreen_themeRow_themeOptionDark_label => 'Dark';
+
+  @override
+  String get settingsScreen_AmoledThemeSwitch_label =>
+      'Dark mode with full black (AMOLED)';
+
+  @override
+  String get settingsScreen_languageDialogTrigger_label => 'Language';
+
+  @override
+  String get settingsScreen_languageDialog_title => 'Choose language';
+
+  @override
+  String get settingsScreen_languageDialog_systemDefaultOption_label =>
+      'System default';
+
+  @override
+  String get settingsScreen_languageDialog_cancelButton_label => 'Cancel';
+
+  @override
+  String get settingsScreen_languageDialog_confirmButton_label => 'Confirm';
 }
