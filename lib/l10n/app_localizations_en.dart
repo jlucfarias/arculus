@@ -73,6 +73,15 @@ class AppLocalizationsEn extends AppLocalizations {
       'Secret is invalid (Base32)';
 
   @override
+  String get accountScreen_advancedExpander_label => 'Advanced';
+
+  @override
+  String get accountScreen_tokeTypeSelector_label => 'Type';
+
+  @override
+  String get accountScreen_algorithmSelector_label => 'Hash function';
+
+  @override
   String get accountScreen_intervalInput_label => 'Interval (seconds)';
 
   @override

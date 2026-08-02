@@ -218,6 +218,24 @@ abstract class AppLocalizations {
   /// **'Secret is invalid (Base32)'**
   String get accountScreen_secretInput_invalidErrorMessage;
 
+  /// Label of the advanced expander on account screen
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get accountScreen_advancedExpander_label;
+
+  /// Label of the token type selector on account screen
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get accountScreen_tokeTypeSelector_label;
+
+  /// Label of the algorithm selector on account screen
+  ///
+  /// In en, this message translates to:
+  /// **'Hash function'**
+  String get accountScreen_algorithmSelector_label;
+
   /// Label of the interval input on account screen
   ///
   /// In en, this message translates to:

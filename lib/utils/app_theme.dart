@@ -303,10 +303,10 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: colorScheme.primary,
           foregroundColor: colorScheme.onPrimary,
-          disabledBackgroundColor: brightness == Brightness.light
+          disabledBackgroundColor: isLightTheme
               ? ThemeColors.disabledBackgroundLight
               : ThemeColors.disabledBackgroundDark,
-          disabledForegroundColor: brightness == Brightness.light
+          disabledForegroundColor: isLightTheme
               ? ThemeColors.disabledContentLight
               : ThemeColors.disabledContentDark,
           padding: const EdgeInsets.symmetric(
@@ -358,7 +358,7 @@ class AppTheme {
 
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: brightness == Brightness.light
+        fillColor: isLightTheme
             ? ThemeColors.formFieldBackgroundLight
             : ThemeColors.formFieldBackgroundDark,
         contentPadding: const EdgeInsets.symmetric(
@@ -370,7 +370,7 @@ class AppTheme {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(ThemeRadii.r75),
           borderSide: BorderSide(
-            color: brightness == Brightness.light
+            color: isLightTheme
                 ? ThemeColors.formFieldBorderLight
                 : ThemeColors.formFieldBorderDark,
           ),
@@ -378,7 +378,7 @@ class AppTheme {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(ThemeRadii.r75),
           borderSide: BorderSide(
-            color: brightness == Brightness.light
+            color: isLightTheme
                 ? ThemeColors.formFieldBorderLight
                 : ThemeColors.formFieldBorderDark,
           ),
@@ -415,9 +415,7 @@ class AppTheme {
       ),
 
       chipTheme: ChipThemeData(
-        backgroundColor: brightness == Brightness.light
-            ? ThemeColors.grey2
-            : ThemeColors.grey7,
+        backgroundColor: isLightTheme ? ThemeColors.grey2 : ThemeColors.grey7,
         labelStyle: ThemeTypography.bodySm.copyWith(color: bodyColor),
         padding: const EdgeInsets.symmetric(
           horizontal: ThemeSpacing.small,
@@ -439,11 +437,11 @@ class AppTheme {
       ),
 
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: brightness == Brightness.light
+        backgroundColor: isLightTheme
             ? ThemeColors.backgroundInverseLight
             : ThemeColors.backgroundInverseDark,
         contentTextStyle: ThemeTypography.body(
-          brightness == Brightness.light
+          isLightTheme
               ? ThemeColors.bodyInverseLight
               : ThemeColors.bodyInverseDark,
         ),
@@ -459,7 +457,7 @@ class AppTheme {
             return ThemeColors.greyWhite;
           }
 
-          if (brightness == Brightness.light) {
+          if (isLightTheme) {
             return ThemeColors.grey6;
           }
 
@@ -470,7 +468,7 @@ class AppTheme {
             return colorScheme.primary;
           }
 
-          if (brightness == Brightness.light) {
+          if (isLightTheme) {
             return ThemeColors.grey3;
           }
 
@@ -481,7 +479,7 @@ class AppTheme {
             return colorScheme.primary;
           }
 
-          if (brightness == Brightness.light) {
+          if (isLightTheme) {
             return ThemeColors.grey6;
           }
 
@@ -514,13 +512,13 @@ class AppTheme {
 
       tooltipTheme: TooltipThemeData(
         decoration: BoxDecoration(
-          color: brightness == Brightness.light
+          color: isLightTheme
               ? ThemeColors.backgroundInverseLight
               : ThemeColors.backgroundInverseDark,
           borderRadius: BorderRadius.circular(ThemeRadii.r50),
         ),
         textStyle: ThemeTypography.bodySm.copyWith(
-          color: brightness == Brightness.light
+          color: isLightTheme
               ? ThemeColors.bodyInverseLight
               : ThemeColors.bodyInverseDark,
         ),
@@ -627,7 +625,7 @@ class AppTheme {
       iconButtonTheme: IconButtonThemeData(
         style: IconButton.styleFrom(
           foregroundColor: bodyColor,
-          hoverColor: brightness == Brightness.light
+          hoverColor: isLightTheme
               ? ThemeColors.backgroundLight.withValues(alpha: 0.06)
               : ThemeColors.backgroundDark.withValues(alpha: 0.06),
           shape: RoundedRectangleBorder(
@@ -638,7 +636,7 @@ class AppTheme {
 
       searchBarTheme: SearchBarThemeData(
         backgroundColor: WidgetStatePropertyAll(
-          brightness == Brightness.light
+          isLightTheme
               ? ThemeColors.formFieldBackgroundLight
               : ThemeColors.formFieldBackgroundDark,
         ),
@@ -650,7 +648,7 @@ class AppTheme {
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(ThemeRadii.r75),
             side: BorderSide(
-              color: brightness == Brightness.light
+              color: isLightTheme
                   ? ThemeColors.formFieldBorderLight
                   : ThemeColors.formFieldBorderDark,
             ),
@@ -736,7 +734,7 @@ class AppTheme {
         visualDensity: VisualDensity.standard,
         enableFeedback: true,
         tileColor: colorScheme.surface,
-        selectedTileColor: brightness == Brightness.light
+        selectedTileColor: isLightTheme
             ? ThemeColors.blurpleLight
             : ThemeColors.blurpleStrong,
         iconColor: bodyColor,
@@ -770,6 +768,20 @@ class AppTheme {
 
           return SystemMouseCursors.click;
         }),
+      ),
+
+      expansionTileTheme: ExpansionTileThemeData(
+        tilePadding: EdgeInsets.symmetric(
+          horizontal: ThemeSpacing.xsmall,
+        ),
+        childrenPadding: EdgeInsets.symmetric(
+          vertical: ThemeSpacing.small + ThemeSpacing.xsmall,
+        ),
+        iconColor: isLightTheme
+            ? ThemeColors.formFieldBorderLight
+            : ThemeColors.formFieldBorderDark,
+        shape: RoundedRectangleBorder(side: BorderSide.none),
+        //ShapeBorder? collapsedShape
       ),
 
       splashFactory: NoSplash.splashFactory,

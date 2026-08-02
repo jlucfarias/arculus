@@ -27,10 +27,7 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
     'name',
     aliasedName,
     false,
-    additionalChecks: GeneratedColumn.checkTextLength(
-      minTextLength: 2,
-      maxTextLength: 50,
-    ),
+    additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 50),
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
@@ -40,10 +37,7 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
     'issuer',
     aliasedName,
     true,
-    additionalChecks: GeneratedColumn.checkTextLength(
-      minTextLength: 2,
-      maxTextLength: 50,
-    ),
+    additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 50),
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
@@ -54,6 +48,28 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
     aliasedName,
     false,
     additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 200),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _tokenTypeMeta = const VerificationMeta(
+    'tokenType',
+  );
+  @override
+  late final GeneratedColumn<String> tokenType = GeneratedColumn<String>(
+    'token_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _algorithmMeta = const VerificationMeta(
+    'algorithm',
+  );
+  @override
+  late final GeneratedColumn<String> algorithm = GeneratedColumn<String>(
+    'algorithm',
+    aliasedName,
+    false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
@@ -105,6 +121,8 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
     name,
     issuer,
     secret,
+    tokenType,
+    algorithm,
     interval,
     digits,
     createdAt,
@@ -146,6 +164,22 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
       );
     } else if (isInserting) {
       context.missing(_secretMeta);
+    }
+    if (data.containsKey('token_type')) {
+      context.handle(
+        _tokenTypeMeta,
+        tokenType.isAcceptableOrUnknown(data['token_type']!, _tokenTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_tokenTypeMeta);
+    }
+    if (data.containsKey('algorithm')) {
+      context.handle(
+        _algorithmMeta,
+        algorithm.isAcceptableOrUnknown(data['algorithm']!, _algorithmMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_algorithmMeta);
     }
     if (data.containsKey('interval')) {
       context.handle(
@@ -200,6 +234,14 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
         DriftSqlType.string,
         data['${effectivePrefix}secret'],
       )!,
+      tokenType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}token_type'],
+      )!,
+      algorithm: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}algorithm'],
+      )!,
       interval: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}interval'],
@@ -230,6 +272,8 @@ class Account extends DataClass implements Insertable<Account> {
   final String name;
   final String? issuer;
   final String secret;
+  final String tokenType;
+  final String algorithm;
   final int interval;
   final int digits;
   final DateTime? createdAt;
@@ -239,6 +283,8 @@ class Account extends DataClass implements Insertable<Account> {
     required this.name,
     this.issuer,
     required this.secret,
+    required this.tokenType,
+    required this.algorithm,
     required this.interval,
     required this.digits,
     this.createdAt,
@@ -253,6 +299,8 @@ class Account extends DataClass implements Insertable<Account> {
       map['issuer'] = Variable<String>(issuer);
     }
     map['secret'] = Variable<String>(secret);
+    map['token_type'] = Variable<String>(tokenType);
+    map['algorithm'] = Variable<String>(algorithm);
     map['interval'] = Variable<int>(interval);
     map['digits'] = Variable<int>(digits);
     if (!nullToAbsent || createdAt != null) {
@@ -272,6 +320,8 @@ class Account extends DataClass implements Insertable<Account> {
           ? const Value.absent()
           : Value(issuer),
       secret: Value(secret),
+      tokenType: Value(tokenType),
+      algorithm: Value(algorithm),
       interval: Value(interval),
       digits: Value(digits),
       createdAt: createdAt == null && nullToAbsent
@@ -293,6 +343,8 @@ class Account extends DataClass implements Insertable<Account> {
       name: serializer.fromJson<String>(json['name']),
       issuer: serializer.fromJson<String?>(json['issuer']),
       secret: serializer.fromJson<String>(json['secret']),
+      tokenType: serializer.fromJson<String>(json['tokenType']),
+      algorithm: serializer.fromJson<String>(json['algorithm']),
       interval: serializer.fromJson<int>(json['interval']),
       digits: serializer.fromJson<int>(json['digits']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
@@ -307,6 +359,8 @@ class Account extends DataClass implements Insertable<Account> {
       'name': serializer.toJson<String>(name),
       'issuer': serializer.toJson<String?>(issuer),
       'secret': serializer.toJson<String>(secret),
+      'tokenType': serializer.toJson<String>(tokenType),
+      'algorithm': serializer.toJson<String>(algorithm),
       'interval': serializer.toJson<int>(interval),
       'digits': serializer.toJson<int>(digits),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
@@ -319,6 +373,8 @@ class Account extends DataClass implements Insertable<Account> {
     String? name,
     Value<String?> issuer = const Value.absent(),
     String? secret,
+    String? tokenType,
+    String? algorithm,
     int? interval,
     int? digits,
     Value<DateTime?> createdAt = const Value.absent(),
@@ -328,6 +384,8 @@ class Account extends DataClass implements Insertable<Account> {
     name: name ?? this.name,
     issuer: issuer.present ? issuer.value : this.issuer,
     secret: secret ?? this.secret,
+    tokenType: tokenType ?? this.tokenType,
+    algorithm: algorithm ?? this.algorithm,
     interval: interval ?? this.interval,
     digits: digits ?? this.digits,
     createdAt: createdAt.present ? createdAt.value : this.createdAt,
@@ -339,6 +397,8 @@ class Account extends DataClass implements Insertable<Account> {
       name: data.name.present ? data.name.value : this.name,
       issuer: data.issuer.present ? data.issuer.value : this.issuer,
       secret: data.secret.present ? data.secret.value : this.secret,
+      tokenType: data.tokenType.present ? data.tokenType.value : this.tokenType,
+      algorithm: data.algorithm.present ? data.algorithm.value : this.algorithm,
       interval: data.interval.present ? data.interval.value : this.interval,
       digits: data.digits.present ? data.digits.value : this.digits,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
@@ -353,6 +413,8 @@ class Account extends DataClass implements Insertable<Account> {
           ..write('name: $name, ')
           ..write('issuer: $issuer, ')
           ..write('secret: $secret, ')
+          ..write('tokenType: $tokenType, ')
+          ..write('algorithm: $algorithm, ')
           ..write('interval: $interval, ')
           ..write('digits: $digits, ')
           ..write('createdAt: $createdAt, ')
@@ -367,6 +429,8 @@ class Account extends DataClass implements Insertable<Account> {
     name,
     issuer,
     secret,
+    tokenType,
+    algorithm,
     interval,
     digits,
     createdAt,
@@ -380,6 +444,8 @@ class Account extends DataClass implements Insertable<Account> {
           other.name == this.name &&
           other.issuer == this.issuer &&
           other.secret == this.secret &&
+          other.tokenType == this.tokenType &&
+          other.algorithm == this.algorithm &&
           other.interval == this.interval &&
           other.digits == this.digits &&
           other.createdAt == this.createdAt &&
@@ -391,6 +457,8 @@ class AccountsCompanion extends UpdateCompanion<Account> {
   final Value<String> name;
   final Value<String?> issuer;
   final Value<String> secret;
+  final Value<String> tokenType;
+  final Value<String> algorithm;
   final Value<int> interval;
   final Value<int> digits;
   final Value<DateTime?> createdAt;
@@ -400,6 +468,8 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     this.name = const Value.absent(),
     this.issuer = const Value.absent(),
     this.secret = const Value.absent(),
+    this.tokenType = const Value.absent(),
+    this.algorithm = const Value.absent(),
     this.interval = const Value.absent(),
     this.digits = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -410,12 +480,16 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     required String name,
     this.issuer = const Value.absent(),
     required String secret,
+    required String tokenType,
+    required String algorithm,
     required int interval,
     required int digits,
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   }) : name = Value(name),
        secret = Value(secret),
+       tokenType = Value(tokenType),
+       algorithm = Value(algorithm),
        interval = Value(interval),
        digits = Value(digits);
   static Insertable<Account> custom({
@@ -423,6 +497,8 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     Expression<String>? name,
     Expression<String>? issuer,
     Expression<String>? secret,
+    Expression<String>? tokenType,
+    Expression<String>? algorithm,
     Expression<int>? interval,
     Expression<int>? digits,
     Expression<DateTime>? createdAt,
@@ -433,6 +509,8 @@ class AccountsCompanion extends UpdateCompanion<Account> {
       if (name != null) 'name': name,
       if (issuer != null) 'issuer': issuer,
       if (secret != null) 'secret': secret,
+      if (tokenType != null) 'token_type': tokenType,
+      if (algorithm != null) 'algorithm': algorithm,
       if (interval != null) 'interval': interval,
       if (digits != null) 'digits': digits,
       if (createdAt != null) 'created_at': createdAt,
@@ -445,6 +523,8 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     Value<String>? name,
     Value<String?>? issuer,
     Value<String>? secret,
+    Value<String>? tokenType,
+    Value<String>? algorithm,
     Value<int>? interval,
     Value<int>? digits,
     Value<DateTime?>? createdAt,
@@ -455,6 +535,8 @@ class AccountsCompanion extends UpdateCompanion<Account> {
       name: name ?? this.name,
       issuer: issuer ?? this.issuer,
       secret: secret ?? this.secret,
+      tokenType: tokenType ?? this.tokenType,
+      algorithm: algorithm ?? this.algorithm,
       interval: interval ?? this.interval,
       digits: digits ?? this.digits,
       createdAt: createdAt ?? this.createdAt,
@@ -476,6 +558,12 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     }
     if (secret.present) {
       map['secret'] = Variable<String>(secret.value);
+    }
+    if (tokenType.present) {
+      map['token_type'] = Variable<String>(tokenType.value);
+    }
+    if (algorithm.present) {
+      map['algorithm'] = Variable<String>(algorithm.value);
     }
     if (interval.present) {
       map['interval'] = Variable<int>(interval.value);
@@ -499,6 +587,8 @@ class AccountsCompanion extends UpdateCompanion<Account> {
           ..write('name: $name, ')
           ..write('issuer: $issuer, ')
           ..write('secret: $secret, ')
+          ..write('tokenType: $tokenType, ')
+          ..write('algorithm: $algorithm, ')
           ..write('interval: $interval, ')
           ..write('digits: $digits, ')
           ..write('createdAt: $createdAt, ')
@@ -525,6 +615,8 @@ typedef $$AccountsTableCreateCompanionBuilder =
       required String name,
       Value<String?> issuer,
       required String secret,
+      required String tokenType,
+      required String algorithm,
       required int interval,
       required int digits,
       Value<DateTime?> createdAt,
@@ -536,6 +628,8 @@ typedef $$AccountsTableUpdateCompanionBuilder =
       Value<String> name,
       Value<String?> issuer,
       Value<String> secret,
+      Value<String> tokenType,
+      Value<String> algorithm,
       Value<int> interval,
       Value<int> digits,
       Value<DateTime?> createdAt,
@@ -568,6 +662,16 @@ class $$AccountsTableFilterComposer
 
   ColumnFilters<String> get secret => $composableBuilder(
     column: $table.secret,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tokenType => $composableBuilder(
+    column: $table.tokenType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get algorithm => $composableBuilder(
+    column: $table.algorithm,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -621,6 +725,16 @@ class $$AccountsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get tokenType => $composableBuilder(
+    column: $table.tokenType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get algorithm => $composableBuilder(
+    column: $table.algorithm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get interval => $composableBuilder(
     column: $table.interval,
     builder: (column) => ColumnOrderings(column),
@@ -662,6 +776,12 @@ class $$AccountsTableAnnotationComposer
 
   GeneratedColumn<String> get secret =>
       $composableBuilder(column: $table.secret, builder: (column) => column);
+
+  GeneratedColumn<String> get tokenType =>
+      $composableBuilder(column: $table.tokenType, builder: (column) => column);
+
+  GeneratedColumn<String> get algorithm =>
+      $composableBuilder(column: $table.algorithm, builder: (column) => column);
 
   GeneratedColumn<int> get interval =>
       $composableBuilder(column: $table.interval, builder: (column) => column);
@@ -708,6 +828,8 @@ class $$AccountsTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<String?> issuer = const Value.absent(),
                 Value<String> secret = const Value.absent(),
+                Value<String> tokenType = const Value.absent(),
+                Value<String> algorithm = const Value.absent(),
                 Value<int> interval = const Value.absent(),
                 Value<int> digits = const Value.absent(),
                 Value<DateTime?> createdAt = const Value.absent(),
@@ -717,6 +839,8 @@ class $$AccountsTableTableManager
                 name: name,
                 issuer: issuer,
                 secret: secret,
+                tokenType: tokenType,
+                algorithm: algorithm,
                 interval: interval,
                 digits: digits,
                 createdAt: createdAt,
@@ -728,6 +852,8 @@ class $$AccountsTableTableManager
                 required String name,
                 Value<String?> issuer = const Value.absent(),
                 required String secret,
+                required String tokenType,
+                required String algorithm,
                 required int interval,
                 required int digits,
                 Value<DateTime?> createdAt = const Value.absent(),
@@ -737,6 +863,8 @@ class $$AccountsTableTableManager
                 name: name,
                 issuer: issuer,
                 secret: secret,
+                tokenType: tokenType,
+                algorithm: algorithm,
                 interval: interval,
                 digits: digits,
                 createdAt: createdAt,

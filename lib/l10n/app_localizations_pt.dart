@@ -72,6 +72,15 @@ class AppLocalizationsPt extends AppLocalizations {
       'Segredo inválido (Base32)';
 
   @override
+  String get accountScreen_advancedExpander_label => 'Avançado';
+
+  @override
+  String get accountScreen_tokeTypeSelector_label => 'Tipo';
+
+  @override
+  String get accountScreen_algorithmSelector_label => 'Função de hash';
+
+  @override
   String get accountScreen_intervalInput_label => 'Intervalo (segundos)';
 
   @override

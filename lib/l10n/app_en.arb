@@ -80,6 +80,18 @@
   "@accountScreen_secretInput_invalidErrorMessage": {
     "description": "Error message when secret input is invalid"
   },
+  "accountScreen_advancedExpander_label": "Advanced",
+  "@accountScreen_advancedExpander_label": {
+    "description": "Label of the advanced expander on account screen"
+  },
+  "accountScreen_tokeTypeSelector_label": "Type",
+  "@accountScreen_tokeTypeSelector_label": {
+    "description": "Label of the token type selector on account screen"
+  },
+  "accountScreen_algorithmSelector_label": "Hash function",
+  "@accountScreen_algorithmSelector_label": {
+    "description": "Label of the algorithm selector on account screen"
+  },
   "accountScreen_intervalInput_label": "Interval (seconds)",
   "@accountScreen_intervalInput_label": {
     "description": "Label of the interval input on account screen"

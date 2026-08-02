@@ -5,7 +5,7 @@ import 'package:arculus/utils/app_database.dart';
 class OtpService {
   static String generateTotp(Account account) {
     try {
-      final algo = Algorithm.values.byName('SHA1');
+      final algo = Algorithm.values.byName(account.algorithm.toUpperCase());
       final code = OTP.generateTOTPCodeString(
         account.secret,
         DateTime.now().millisecondsSinceEpoch,

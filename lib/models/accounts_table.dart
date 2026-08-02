@@ -5,6 +5,8 @@ class Accounts extends Table {
   TextColumn get name => text().withLength(max: 50)();
   TextColumn get issuer => text().withLength(max: 50).nullable()();
   TextColumn get secret => text().withLength(max: 200)();
+  TextColumn get tokenType => text()();
+  TextColumn get algorithm => text()();
   IntColumn get interval => integer()();
   IntColumn get digits => integer()();
   DateTimeColumn get createdAt => dateTime().nullable()();
