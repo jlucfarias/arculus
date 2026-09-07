@@ -25,6 +25,7 @@ O Arculus é um aplicativo de autenticação gratuito, de código aberto e multi
 
 - **Organização e usabilidade**
   - Ícones automáticos
+  - Agrupe itens em pastas
   - Temas claro, escuro e AMOLED
 
 ## Licença

@@ -349,6 +349,7 @@ class AppTheme {
           ),
           textStyle: ThemeTypography.bodyMd.copyWith(
             fontWeight: ThemeTypography.medium,
+            height: 1.0,
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(ThemeRadii.r75),
@@ -415,8 +416,11 @@ class AppTheme {
       ),
 
       chipTheme: ChipThemeData(
-        backgroundColor: isLightTheme ? ThemeColors.grey2 : ThemeColors.grey7,
+        backgroundColor: isLightTheme ? ThemeColors.grey2 : Colors.transparent,
+        selectedColor: colorScheme.primary,
+        secondarySelectedColor: colorScheme.primary,
         labelStyle: ThemeTypography.bodySm.copyWith(color: bodyColor),
+        secondaryLabelStyle: ThemeTypography.bodySm.copyWith(color: colorScheme.onPrimary),
         padding: const EdgeInsets.symmetric(
           horizontal: ThemeSpacing.small,
           vertical: ThemeSpacing.xsmall,

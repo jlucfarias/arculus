@@ -6,6 +6,7 @@ import 'package:arculus/l10n/app_localizations.dart';
 import 'package:arculus/providers/locale_provider.dart';
 import 'package:arculus/providers/theme_provider.dart';
 import 'package:arculus/repositories/account_repository.dart';
+import 'package:arculus/repositories/folder_repository.dart';
 import 'package:arculus/screens/home_screen.dart';
 import 'package:arculus/utils/app_constants.dart';
 import 'package:arculus/utils/app_database.dart';
@@ -20,6 +21,7 @@ void main() {
     MultiProvider(
       providers: [
         Provider<AccountRepository>(create: (_) => AccountRepository(database)),
+        Provider<FolderRepository>(create: (_) => FolderRepository(database)),
         ChangeNotifierProvider<ThemeProvider>(create: (_) => ThemeProvider()),
         ChangeNotifierProvider<LocaleProvider>(create: (_) => LocaleProvider()),
       ],

@@ -44,6 +44,38 @@ class AppLocalizationsPt extends AppLocalizations {
   String get homeScreen_floatActionButton_label => 'Adicionar';
 
   @override
+  String get homeScreen_foldersBar_allAccountsFolder_label => 'Todas';
+
+  @override
+  String get homeScreen_foldersBar_addFolderButton_tooltipText =>
+      'Adicionar pasta';
+
+  @override
+  String get homeScreen_addFolderDialog_title => 'Nova pasta';
+
+  @override
+  String get homeScreen_addFolderDialog_nameInput_hintText => 'Nome da pasta';
+
+  @override
+  String get homeScreen_addFolderDialog_action_cancel_label => 'Cancelar';
+
+  @override
+  String get homeScreen_addFolderDialog_action_save_label => 'Criar';
+
+  @override
+  String get homeScreen_deleteFolderDialog_title => 'Excluir pasta';
+
+  @override
+  String get homeScreen_deleteFolderDialog_content =>
+      'Você têm certeza que deseja excluir essa pasta?';
+
+  @override
+  String get homeScreen_deleteFolderDialog_action_cancel_label => 'Cancelar';
+
+  @override
+  String get homeScreen_deleteFolderDialog_action_delete_label => 'Excluir';
+
+  @override
   String get accountScreen_addAccount_title => 'Adicionar conta';
 
   @override
@@ -57,6 +89,37 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get accountScreen_issuerInput_label => 'Emissor';
+
+  @override
+  String get accountScreen_foldersInput_label => 'Pasta';
+
+  @override
+  String get accountScreen_foldersInput_defaultText => 'Sem pasta';
+
+  @override
+  String get accountScreen_addFolderModal_title => 'Pastas';
+
+  @override
+  String get accountScreen_addFolderModal_addFolderButton_label => 'Nova pasta';
+
+  @override
+  String get accountScreen_addFolderModal_action_cleanUp_label => 'Limpar';
+
+  @override
+  String get accountScreen_addFolderModal_action_save_label => 'Salvar';
+
+  @override
+  String get accountScreen_addFolderDialog_title => 'Nova pasta';
+
+  @override
+  String get accountScreen_addFolderDialog_nameInput_hintText =>
+      'Nome da pasta';
+
+  @override
+  String get accountScreen_addFolderDialog_action_cancel_label => 'Cancelar';
+
+  @override
+  String get accountScreen_addFolderDialog_action_save_label => 'Criar';
 
   @override
   String get accountScreen_secretInput_label => 'Segredo';

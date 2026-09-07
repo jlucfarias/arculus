@@ -25,6 +25,7 @@ Arculus is a free, open-source, multiplatform authentication app built with Flut
 
 - **Organization and usability**
   - Automatic icons
+  - Group entries into folders
   - Light, Dark, and AMOLED themes
 
 ## License

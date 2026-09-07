@@ -164,6 +164,66 @@ abstract class AppLocalizations {
   /// **'Add'**
   String get homeScreen_floatActionButton_label;
 
+  /// Label of the all accounts folder in folders bar
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get homeScreen_foldersBar_allAccountsFolder_label;
+
+  /// Tooltip text of the add folder button in folders bar
+  ///
+  /// In en, this message translates to:
+  /// **'Add folder'**
+  String get homeScreen_foldersBar_addFolderButton_tooltipText;
+
+  /// Title of the dialog for folder addition
+  ///
+  /// In en, this message translates to:
+  /// **'New folder'**
+  String get homeScreen_addFolderDialog_title;
+
+  /// Hint text of the folder name input on modal for folder addition
+  ///
+  /// In en, this message translates to:
+  /// **'Folder name'**
+  String get homeScreen_addFolderDialog_nameInput_hintText;
+
+  /// Label of the cancel action on modal for folder addition
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get homeScreen_addFolderDialog_action_cancel_label;
+
+  /// Label of the create action on modal for folder addition
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get homeScreen_addFolderDialog_action_save_label;
+
+  /// Title of the dialog for folder deletion
+  ///
+  /// In en, this message translates to:
+  /// **'Delete folder'**
+  String get homeScreen_deleteFolderDialog_title;
+
+  /// Content of the dialog for folder deletion
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this folder?'**
+  String get homeScreen_deleteFolderDialog_content;
+
+  /// Label of the cancel action on modal for folder deletion
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get homeScreen_deleteFolderDialog_action_cancel_label;
+
+  /// Label of the delete action on modal for folder deletion
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get homeScreen_deleteFolderDialog_action_delete_label;
+
   /// Title of the account screen when adding account
   ///
   /// In en, this message translates to:
@@ -193,6 +253,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Issuer'**
   String get accountScreen_issuerInput_label;
+
+  /// Label of the folders input on account screen
+  ///
+  /// In en, this message translates to:
+  /// **'Folder'**
+  String get accountScreen_foldersInput_label;
+
+  /// Default text for folders input
+  ///
+  /// In en, this message translates to:
+  /// **'No folder'**
+  String get accountScreen_foldersInput_defaultText;
+
+  /// Title of the modal for folder addition
+  ///
+  /// In en, this message translates to:
+  /// **'Folders'**
+  String get accountScreen_addFolderModal_title;
+
+  /// Label of the add folder button on modal folder addition
+  ///
+  /// In en, this message translates to:
+  /// **'New folder'**
+  String get accountScreen_addFolderModal_addFolderButton_label;
+
+  /// Label of the clean up action on modal for folder addition
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get accountScreen_addFolderModal_action_cleanUp_label;
+
+  /// Label of the save action on modal for folder addition
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get accountScreen_addFolderModal_action_save_label;
+
+  /// Title of the dialog for folder addition
+  ///
+  /// In en, this message translates to:
+  /// **'New folder'**
+  String get accountScreen_addFolderDialog_title;
+
+  /// Hint text of the folder name input on modal for folder addition
+  ///
+  /// In en, this message translates to:
+  /// **'Folder name'**
+  String get accountScreen_addFolderDialog_nameInput_hintText;
+
+  /// Label of the cancel action on modal for folder addition
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get accountScreen_addFolderDialog_action_cancel_label;
+
+  /// Label of the create action on modal for folder addition
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get accountScreen_addFolderDialog_action_save_label;
 
   /// Label of the secret input on account screen
   ///

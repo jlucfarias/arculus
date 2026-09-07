@@ -6,6 +6,7 @@ import 'package:drift/drift.dart' hide Column;
 
 import 'package:arculus/extensions/l10n_extension.dart';
 import 'package:arculus/repositories/account_repository.dart';
+import 'package:arculus/repositories/folder_repository.dart';
 import 'package:arculus/services/otp_service.dart';
 import 'package:arculus/utils/app_database.dart';
 import 'package:arculus/utils/app_theme.dart';
@@ -46,6 +47,9 @@ class AccountScreen extends StatefulWidget {
 class _AccountScreenState extends State<AccountScreen> {
   final _nameController = TextEditingController();
   final _issuerController = TextEditingController();
+  final _folderController = TextEditingController();
+  final _folderNameController = TextEditingController();
+  Set<int> _selectedFolders = {};
   final _secretController = TextEditingController();
   final _tokenTypeController = TextEditingController();
   final _algorithmController = TextEditingController();
@@ -76,9 +80,23 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final l10n = context.l10n;
+    _folderController.text = l10n.accountScreen_foldersInput_defaultText;
+
+    if (widget.accountToEdit != null) {
+      _folderController.text = '';
+    }
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _issuerController.dispose();
+    _folderController.dispose();
+    _folderNameController.dispose();
     _secretController.dispose();
     _tokenTypeController.dispose();
     _algorithmController.dispose();
@@ -89,6 +107,194 @@ class _AccountScreenState extends State<AccountScreen> {
 
   void _goBack(BuildContext context) {
     Navigator.pop(context);
+  }
+
+  Future<bool> _addFolder() async {
+    final folderRepository = context.read<FolderRepository>();
+    final result = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final l10n = context.l10n;
+
+        return AlertDialog(
+          title: Text(l10n.accountScreen_addFolderDialog_title),
+          content: TextField(
+            controller: _folderNameController,
+            autofocus: true,
+            decoration: InputDecoration(
+              hintText: l10n.accountScreen_addFolderDialog_nameInput_hintText,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                l10n.accountScreen_addFolderDialog_action_cancel_label,
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, {
+                'name': _folderNameController.text != ''
+                    ? _folderNameController.text.trim()
+                    : null,
+              }),
+              child: Text(l10n.accountScreen_addFolderDialog_action_save_label),
+            ),
+          ],
+        );
+      },
+    );
+
+    _folderNameController.clear();
+
+    if (result != null &&
+        (result['name'] ?? '').isNotEmpty &&
+        context.mounted) {
+      await folderRepository.insert(
+        FoldersCompanion(name: Value(result['name']!)),
+      );
+      return true;
+    }
+
+    return false;
+  }
+
+  Future<void> _showFoldersModal() async {
+    final folderRepository = context.read<FolderRepository>();
+    final l10n = context.l10n;
+    final colorScheme = Theme.of(context).colorScheme;
+    List<Folder> folders = await folderRepository.getAll();
+
+    if (!mounted) {
+      return;
+    }
+
+    Set<int> selectedFolders = _selectedFolders.isNotEmpty ? _selectedFolders : {};
+
+    showModalBottomSheet(
+      context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
+      builder: (BuildContext modalContext) {
+        return SafeArea(
+          child: StatefulBuilder(
+            builder: (context, setModalState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        l10n.accountScreen_addFolderModal_title,
+                        style: ThemeTypography.title(colorScheme.onSurface),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: ThemeSpacing.halfMedium),
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton.icon(
+                      onPressed: () async {
+                        final created = await _addFolder();
+
+                        if (created && context.mounted) {
+                          final updatedFolders = await folderRepository
+                              .getAll();
+
+                          setModalState(() {
+                            folders = updatedFolders;
+                          });
+                        }
+                      },
+                      style: ButtonStyle(
+                        alignment: Alignment.centerLeft,
+                        foregroundColor: WidgetStatePropertyAll(
+                          colorScheme.onSurface,
+                        ),
+                      ),
+                      icon: const Icon(Icons.add_rounded),
+                      label: Text(
+                        l10n.accountScreen_addFolderModal_addFolderButton_label,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: ThemeSpacing.halfMedium),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: ThemeSpacing.xsmall,
+                    ),
+                    child: Wrap(
+                      spacing: ThemeSpacing.xsmall,
+                      runSpacing: ThemeSpacing.xsmall,
+                      children: folders.map((folder) {
+                        final isSelected = selectedFolders.contains(folder.id);
+
+                        return FilterChip(
+                          label: Text(
+                            folder.name,
+                            style: ThemeTypography.bodySm.copyWith(
+                              color: isSelected
+                                  ? colorScheme.onPrimary
+                                  : colorScheme.onSurface,
+                            ),
+                          ),
+                          selected: isSelected,
+                          onSelected: (bool selected) {
+                            setModalState(() {
+                              if (selected) {
+                                selectedFolders.add(folder.id);
+                              } else {
+                                selectedFolders.remove(folder.id);
+                              }
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  const SizedBox(height: ThemeSpacing.large),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => {
+                          setModalState(() {
+                            selectedFolders.clear();
+                          }),
+                        },
+                        child: Text(
+                          l10n.accountScreen_addFolderModal_action_cleanUp_label,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          final selectedNames = folders
+                              .where(
+                                (folder) => selectedFolders.contains(folder.id),
+                              )
+                              .map((folder) => folder.name);
+
+                          setState(() {
+                            _selectedFolders = selectedFolders;
+                            _folderController.text = selectedNames.isNotEmpty ? selectedNames.join(', ') : l10n.accountScreen_foldersInput_defaultText;
+                          });
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          l10n.accountScreen_addFolderModal_action_save_label,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      },
+    );
   }
 
   void _saveAccount(BuildContext context) async {
@@ -110,9 +316,10 @@ class _AccountScreenState extends State<AccountScreen> {
           .trim()
           .replaceAll(' ', '')
           .toUpperCase();
+      int accountId = isEditing ? widget.accountToEdit!.id : 0;
 
       if (isEditing) {
-        final updatedAccount = AccountsCompanion(
+        final account = AccountsCompanion(
           id: Value(widget.accountToEdit!.id),
           name: Value(name),
           issuer: Value(_issuerController.text),
@@ -125,7 +332,7 @@ class _AccountScreenState extends State<AccountScreen> {
           digits: Value(int.tryParse(_digitsController.text) ?? defaultDigits),
         );
 
-        await accountRepository.updateAccount(updatedAccount);
+        await accountRepository.update(account);
       } else {
         final account = AccountsCompanion.insert(
           name: name,
@@ -137,7 +344,14 @@ class _AccountScreenState extends State<AccountScreen> {
           digits: int.tryParse(_digitsController.text) ?? defaultDigits,
         );
 
-        await accountRepository.insertAccount(account);
+        accountId = await accountRepository.insert(account);
+      }
+
+      if (_selectedFolders.isNotEmpty) {
+        await accountRepository.saveAccountInFolders(
+          accountId: accountId,
+          folders: _selectedFolders,
+        );
       }
 
       if (!context.mounted) {
@@ -213,6 +427,20 @@ class _AccountScreenState extends State<AccountScreen> {
                   decoration: InputDecoration(
                     labelText: l10n.accountScreen_issuerInput_label,
                     prefixIcon: Icon(Icons.supervisor_account),
+                  ),
+                ),
+                const SizedBox(height: ThemeSpacing.halfMedium),
+                InkWell(
+                  onTap: () {
+                    _showFoldersModal();
+                  },
+                  child: InputDecorator(
+                    decoration: InputDecoration(
+                      labelText: l10n.accountScreen_foldersInput_label,
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.folder),
+                    ),
+                    child: Text(_folderController.text),
                   ),
                 ),
                 const SizedBox(height: ThemeSpacing.halfMedium),

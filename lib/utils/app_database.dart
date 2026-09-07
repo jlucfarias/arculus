@@ -3,10 +3,12 @@ import 'package:drift_flutter/drift_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:arculus/models/accounts_table.dart';
+import 'package:arculus/models/folders_table.dart';
+import 'package:arculus/models/account_folder_table.dart';
 
 part 'app_database.g.dart';
 
-@DriftDatabase(tables: [Accounts])
+@DriftDatabase(tables: [Accounts, Folders, AccountFolder])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 

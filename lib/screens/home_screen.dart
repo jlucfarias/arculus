@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:drift/drift.dart' hide Column;
 import 'package:provider/provider.dart';
 
 import 'package:arculus/extensions/l10n_extension.dart';
 import 'package:arculus/repositories/account_repository.dart';
+import 'package:arculus/repositories/folder_repository.dart';
 import 'package:arculus/screens/account_screen.dart';
 import 'package:arculus/screens/settings_screen.dart';
 import 'package:arculus/utils/app_constants.dart';
@@ -20,10 +22,14 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ValueNotifier<int?> _selectedAccountId = ValueNotifier<int?>(null);
+  final ValueNotifier<int?> _selectedFolderId = ValueNotifier<int?>(null);
+  final _folderNameController = TextEditingController();
 
   @override
   void dispose() {
     _selectedAccountId.dispose();
+    _selectedFolderId.dispose();
+    _folderNameController.dispose();
     super.dispose();
   }
 
@@ -33,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (accountId != null) {
       final accountRepository = localContext.read<AccountRepository>();
-      account = await accountRepository.getAccountById(accountId);
+      account = await accountRepository.getById(accountId);
 
       _emptySelectedAccountList();
     }
@@ -54,8 +60,16 @@ class _HomeScreenState extends State<HomeScreen> {
     _selectedAccountId.value = accountId;
   }
 
+  void _selectFolder(int folderId) {
+    _selectedFolderId.value = folderId;
+  }
+
   void _emptySelectedAccountList() {
     _selectedAccountId.value = null;
+  }
+
+  void _selectFolderAll() {
+    _selectedFolderId.value = null;
   }
 
   void _deleteAccount({required int accountId}) {
@@ -82,7 +96,8 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () async {
                 final accountRepository = context.read<AccountRepository>();
 
-                await accountRepository.deleteAccount(accountId);
+                await accountRepository.delete(accountId);
+                await accountRepository.deleteFromAllFolders(accountId);
 
                 if (!context.mounted) {
                   return;
@@ -94,6 +109,91 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Text(
                 l10n.homeScreen_deleteAccountDialog_confirmButton_label,
               ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _addFolder() async {
+    final folderRepository = context.read<FolderRepository>();
+    final result = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final l10n = context.l10n;
+
+        return AlertDialog(
+          title: Text(l10n.homeScreen_addFolderDialog_title),
+          content: TextField(
+            controller: _folderNameController,
+            autofocus: true,
+            decoration: InputDecoration(
+              hintText: l10n.homeScreen_addFolderDialog_nameInput_hintText,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(l10n.homeScreen_addFolderDialog_action_cancel_label),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, {
+                'name': _folderNameController.text.trim(),
+              }),
+              child: Text(l10n.homeScreen_addFolderDialog_action_save_label),
+            ),
+          ],
+        );
+      },
+    );
+
+    _folderNameController.clear();
+
+    if (result != null &&
+        (result['name'] ?? '').isNotEmpty &&
+        context.mounted) {
+      await folderRepository.insert(
+        FoldersCompanion(name: Value(result['name']!)),
+      );
+    }
+  }
+
+  Future<void> _deleteFolder({required int folderId}) async {
+    //final l10n = context.l10n;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final l10n = context.l10n;
+
+        return AlertDialog(
+          title: Text(l10n.homeScreen_deleteFolderDialog_title),
+          content: Text(l10n.homeScreen_deleteFolderDialog_content),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                l10n.homeScreen_deleteFolderDialog_action_cancel_label,
+              ),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: colorScheme.error),
+              onPressed: () async {
+                final folderRepository = context.read<FolderRepository>();
+
+                await folderRepository.delete(folderId);
+
+                if (!context.mounted) {
+                  return;
+                }
+
+                Navigator.of(context).pop();
+              },
+              child: Text(l10n.homeScreen_deleteFolderDialog_action_delete_label),
             ),
           ],
         );
@@ -219,6 +319,161 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _foldersBar() {
+    final accountRepository = context.read<AccountRepository>();
+    final folderRepository = context.read<FolderRepository>();
+    final colorScheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
+
+    return SizedBox(
+      width: double.infinity,
+      height: 44,
+      child: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: ThemeSpacing.medium),
+        scrollDirection: Axis.horizontal,
+        children: [
+          ValueListenableBuilder<int?>(
+            valueListenable: _selectedFolderId,
+            builder: (context, selectedId, child) {
+              final isAllSelected = selectedId == null;
+
+              return StreamBuilder<int>(
+                stream: accountRepository.watchCount(),
+                builder: (context, snapshot) {
+                  final totalAccounts = snapshot.data ?? 0;
+
+                  return ActionChip(
+                    backgroundColor: isAllSelected ? colorScheme.primary : null,
+                    label: Row(
+                      children: [
+                        Text(
+                          l10n.homeScreen_foldersBar_allAccountsFolder_label,
+                        ),
+                        const SizedBox(width: ThemeSpacing.small),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: ThemeSpacing.xsmall,
+                            vertical: 1,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(
+                              ThemeRadii.r150,
+                            ),
+                          ),
+                          child: Text(
+                            '$totalAccounts',
+                            style: ThemeTypography.bodySm.copyWith(
+                              fontWeight: ThemeTypography.bold,
+                              color: isAllSelected
+                                  ? colorScheme.onPrimary
+                                  : colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    labelStyle: ThemeTypography.bodySm.copyWith(
+                      color: isAllSelected
+                          ? colorScheme.onPrimary
+                          : colorScheme.onSurface,
+                    ),
+                    onPressed: () {
+                      if (!isAllSelected) {
+                        _selectFolderAll();
+                      }
+                    },
+                  );
+                },
+              );
+            },
+          ),
+          SizedBox(width: ThemeSpacing.small),
+          StreamBuilder<List<dynamic>>(
+            stream: folderRepository.watchAllWithAccountsCount(),
+            builder: (context, snapshot) {
+              final folders = snapshot.data ?? [];
+
+              if (folders.isEmpty) {
+                return const SizedBox.shrink();
+              }
+
+              return ValueListenableBuilder<int?>(
+                valueListenable: _selectedFolderId,
+                builder: (context, selectedId, child) {
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: folders.map((tuple) {
+                      final folder = tuple.$1;
+                      final accountCount = tuple.$2;
+                      final isSelected = selectedId == folder.id;
+
+                      return Padding(
+                        padding: const EdgeInsets.only(
+                          right: ThemeSpacing.small,
+                        ),
+                        child: GestureDetector(
+                          onLongPress: () {
+                            _deleteFolder(folderId: folder.id);
+                          },
+                          child: ChoiceChip(
+                            label: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(folder.name),
+                                const SizedBox(width: ThemeSpacing.xsmall),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: ThemeSpacing.xsmall,
+                                    vertical: 1,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(
+                                      ThemeRadii.r150,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    '$accountCount',
+                                    style: ThemeTypography.bodySm.copyWith(
+                                      fontWeight: ThemeTypography.bold,
+                                      color: isSelected
+                                          ? colorScheme.onPrimary
+                                          : colorScheme.onSurface,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            selected: isSelected,
+                            showCheckmark: false,
+                            onSelected: (bool selected) {
+                              if (selected) {
+                                _selectFolder(folder.id);
+                              }
+                            },
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  );
+                },
+              );
+            },
+          ),
+          ActionChip(
+            label: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [Icon(Icons.add)],
+            ),
+            tooltip: l10n.homeScreen_foldersBar_addFolderButton_tooltipText,
+            onPressed: () {
+              _addFolder();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final accountRepository = context.read<AccountRepository>();
@@ -232,25 +487,47 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: () => _addAccount(),
       ),
       body: SafeArea(
-        child: StreamBuilder<List<Account>>(
-          stream: accountRepository.watchAllAccounts(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
+        child: Column(
+          children: [
+            _foldersBar(),
+            Expanded(
+              child: StreamBuilder<List<(Account, List<int>)>>(
+                stream: accountRepository.watchAllWithFolderIds(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting &&
+                      !snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-            final accounts = snapshot.data ?? [];
+                  final accounts = snapshot.data ?? [];
 
-            return Column(
-              children: [
-                Expanded(
-                  child: accounts.isEmpty
-                      ? _emptyList()
-                      : _accountList(accounts),
-                ),
-              ],
-            );
-          },
+                  return ValueListenableBuilder<int?>(
+                    valueListenable: _selectedFolderId,
+                    builder: (context, selectedFolderId, child) {
+                      List<Account> filteredAccounts;
+
+                      if (selectedFolderId == null) {
+                        filteredAccounts = accounts
+                            .map((item) => item.$1)
+                            .toList();
+                      } else {
+                        filteredAccounts = accounts
+                            .where((item) => item.$2.contains(selectedFolderId))
+                            .map((item) => item.$1)
+                            .toList();
+                      }
+
+                      if (filteredAccounts.isEmpty) {
+                        return _emptyList();
+                      }
+
+                      return _accountList(filteredAccounts);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

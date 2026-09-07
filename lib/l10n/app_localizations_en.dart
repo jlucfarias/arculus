@@ -44,6 +44,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeScreen_floatActionButton_label => 'Add';
 
   @override
+  String get homeScreen_foldersBar_allAccountsFolder_label => 'All';
+
+  @override
+  String get homeScreen_foldersBar_addFolderButton_tooltipText => 'Add folder';
+
+  @override
+  String get homeScreen_addFolderDialog_title => 'New folder';
+
+  @override
+  String get homeScreen_addFolderDialog_nameInput_hintText => 'Folder name';
+
+  @override
+  String get homeScreen_addFolderDialog_action_cancel_label => 'Cancel';
+
+  @override
+  String get homeScreen_addFolderDialog_action_save_label => 'Create';
+
+  @override
+  String get homeScreen_deleteFolderDialog_title => 'Delete folder';
+
+  @override
+  String get homeScreen_deleteFolderDialog_content =>
+      'Are you sure you want to delete this folder?';
+
+  @override
+  String get homeScreen_deleteFolderDialog_action_cancel_label => 'Cancel';
+
+  @override
+  String get homeScreen_deleteFolderDialog_action_delete_label => 'Delete';
+
+  @override
   String get accountScreen_addAccount_title => 'Add account';
 
   @override
@@ -58,6 +89,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountScreen_issuerInput_label => 'Issuer';
+
+  @override
+  String get accountScreen_foldersInput_label => 'Folder';
+
+  @override
+  String get accountScreen_foldersInput_defaultText => 'No folder';
+
+  @override
+  String get accountScreen_addFolderModal_title => 'Folders';
+
+  @override
+  String get accountScreen_addFolderModal_addFolderButton_label => 'New folder';
+
+  @override
+  String get accountScreen_addFolderModal_action_cleanUp_label => 'Clear';
+
+  @override
+  String get accountScreen_addFolderModal_action_save_label => 'Save';
+
+  @override
+  String get accountScreen_addFolderDialog_title => 'New folder';
+
+  @override
+  String get accountScreen_addFolderDialog_nameInput_hintText => 'Folder name';
+
+  @override
+  String get accountScreen_addFolderDialog_action_cancel_label => 'Cancel';
+
+  @override
+  String get accountScreen_addFolderDialog_action_save_label => 'Create';
 
   @override
   String get accountScreen_secretInput_label => 'Secret';
