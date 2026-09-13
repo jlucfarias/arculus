@@ -22,8 +22,7 @@ class TokenCard extends StatefulWidget {
   State<TokenCard> createState() => _TokenCardState();
 }
 
-class _TokenCardState extends State<TokenCard>
-    with SingleTickerProviderStateMixin {
+class _TokenCardState extends State<TokenCard> with TickerProviderStateMixin {
   Timer? _timer;
   String _code = '';
   int _secondsLeft = 30;
@@ -123,15 +122,35 @@ class _TokenCardState extends State<TokenCard>
                     color: colorScheme.primary,
                     borderRadius: BorderRadius.circular(30),
                   ),
-                  child: Center(
-                    child: Text(
-                      (widget.account.issuer ?? widget.account.name)
-                          .substring(0, 1)
-                          .toUpperCase(),
-                      style: textTheme.headlineLarge?.copyWith(
-                        color: colorScheme.onPrimary,
-                      ),
-                    ),
+                  child: AnimatedBuilder(
+                    animation: _colorAnimation,
+                    builder: (context, child) {
+                      final currentColor = _isLow
+                          ? colorScheme.error
+                          : colorScheme.onSurface;
+
+                      return Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          CircularProgressIndicator(
+                            value: _secondsLeft / widget.account.interval,
+                            strokeWidth: 3,
+                            backgroundColor: currentColor.withValues(alpha: 0.2),
+                            valueColor: AlwaysStoppedAnimation(currentColor),
+                          ),
+                          Center(
+                            child: Text(
+                              (widget.account.issuer ?? widget.account.name)
+                                  .substring(0, 1)
+                                  .toUpperCase(),
+                              style: textTheme.headlineLarge?.copyWith(
+                                color: colorScheme.onPrimary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(width: ThemeSpacing.medium),
