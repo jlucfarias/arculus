@@ -6,6 +6,7 @@ import 'package:arculus/l10n/app_localizations.dart';
 import 'package:arculus/extensions/l10n_extension.dart';
 import 'package:arculus/providers/locale_provider.dart';
 import 'package:arculus/providers/theme_provider.dart';
+import 'package:arculus/utils/app_constants.dart';
 import 'package:arculus/utils/app_theme.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -15,13 +16,6 @@ class SettingsScreen extends StatefulWidget {
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class LanguageOption<T> {
-  final T value;
-  final String label;
-
-  LanguageOption({required this.value, required this.label});
-}
-
 class _SettingsScreenState extends State<SettingsScreen> {
   void _goBack() {
     Navigator.pop(context);
@@ -29,8 +23,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _showLanguageDialog() {
     final l10n = context.l10n;
-    List<LanguageOption<String>> options = [
-      LanguageOption(
+    List<SelectOption<String>> options = [
+      SelectOption(
         value: 'sys',
         label: l10n.settingsScreen_languageDialog_systemDefaultOption_label,
       ),
@@ -50,7 +44,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
 
       options.add(
-        LanguageOption(value: locale.languageCode, label: nativeName),
+        SelectOption(value: locale.languageCode, label: nativeName),
       );
     }
 

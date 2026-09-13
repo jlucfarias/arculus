@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:arculus/services/otp_service.dart';
+import 'package:arculus/utils/app_constants.dart';
 import 'package:arculus/utils/app_database.dart';
 import 'package:arculus/utils/app_theme.dart';
 
@@ -56,7 +57,7 @@ class _TokenCardState extends State<TokenCard>
   }
 
   void _refresh() {
-    if (true) {
+    if (widget.account.tokenType == TokenType.totp.label) {
       _code = OtpService.generateTotp(widget.account);
       _secondsLeft = OtpService.secondsRemaining(widget.account.interval);
 

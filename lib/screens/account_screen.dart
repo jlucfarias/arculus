@@ -8,23 +8,12 @@ import 'package:arculus/extensions/l10n_extension.dart';
 import 'package:arculus/repositories/account_repository.dart';
 import 'package:arculus/repositories/folder_repository.dart';
 import 'package:arculus/services/otp_service.dart';
+import 'package:arculus/utils/app_constants.dart';
 import 'package:arculus/utils/app_database.dart';
 import 'package:arculus/utils/app_theme.dart';
 
 final int defaultInterval = 30;
 final int defaultDigits = 6;
-
-class SelectOption<T> {
-  final T value;
-  final String label;
-
-  SelectOption({required this.value, required this.label});
-}
-
-final List<SelectOption<String>> tokenTypeOptions = [
-  SelectOption(label: 'TOTP', value: 'totp'),
-  //SelectOption(label: 'HOTP', value: 'hotp'),
-];
 
 final List<SelectOption<String>> algorithmOptions = [
   ...Algorithm.values.map((algorithm) {
@@ -169,7 +158,9 @@ class _AccountScreenState extends State<AccountScreen> {
       return;
     }
 
-    Set<int> selectedFolders = _selectedFolders.isNotEmpty ? _selectedFolders : {};
+    Set<int> selectedFolders = _selectedFolders.isNotEmpty
+        ? _selectedFolders
+        : {};
 
     showModalBottomSheet(
       context: context,
@@ -278,7 +269,9 @@ class _AccountScreenState extends State<AccountScreen> {
 
                           setState(() {
                             _selectedFolders = selectedFolders;
-                            _folderController.text = selectedNames.isNotEmpty ? selectedNames.join(', ') : l10n.accountScreen_foldersInput_defaultText;
+                            _folderController.text = selectedNames.isNotEmpty
+                                ? selectedNames.join(', ')
+                                : l10n.accountScreen_foldersInput_defaultText;
                           });
                           Navigator.pop(context);
                         },
@@ -486,21 +479,24 @@ class _AccountScreenState extends State<AccountScreen> {
                           child: LayoutBuilder(
                             builder: (context, constraints) {
                               return DropdownMenu<String>(
-                                enabled: tokenTypeOptions.length > 1,
+                                enabled:
+                                    AppConstants.tokenTypeOptions.length > 1,
                                 controller: _tokenTypeController,
-                                initialSelection: tokenTypeOptions.first.value,
+                                initialSelection:
+                                    AppConstants.tokenTypeOptions.first.value,
                                 label: Text(
                                   l10n.accountScreen_tokeTypeSelector_label,
                                 ),
                                 width: constraints.maxWidth,
-                                dropdownMenuEntries: tokenTypeOptions.map((
-                                  option,
-                                ) {
-                                  return DropdownMenuEntry(
-                                    value: option.value,
-                                    label: option.label,
-                                  );
-                                }).toList(),
+                                dropdownMenuEntries: AppConstants
+                                    .tokenTypeOptions
+                                    .map((option) {
+                                      return DropdownMenuEntry(
+                                        value: option.value,
+                                        label: option.label,
+                                      );
+                                    })
+                                    .toList(),
                               );
                             },
                           ),
