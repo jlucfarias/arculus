@@ -193,7 +193,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 Navigator.of(context).pop();
               },
-              child: Text(l10n.homeScreen_deleteFolderDialog_action_delete_label),
+              child: Text(
+                l10n.homeScreen_deleteFolderDialog_action_delete_label,
+              ),
             ),
           ],
         );
@@ -402,14 +404,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 builder: (context, selectedId, child) {
                   return Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: folders.map((tuple) {
+                    children: folders.indexed.map((entry) {
+                      final index = entry.$1;
+                      final tuple = entry.$2;
                       final folder = tuple.$1;
                       final accountCount = tuple.$2;
                       final isSelected = selectedId == folder.id;
+                      final isLast = index == folders.length - 1;
 
                       return Padding(
-                        padding: const EdgeInsets.only(
-                          right: ThemeSpacing.small,
+                        padding: EdgeInsets.only(
+                          right: isLast
+                              ? ThemeSpacing.xsmall
+                              : ThemeSpacing.small,
                         ),
                         child: GestureDetector(
                           onLongPress: () {
@@ -464,6 +471,7 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [Icon(Icons.add)],
             ),
+            labelPadding: EdgeInsets.zero,
             tooltip: l10n.homeScreen_foldersBar_addFolderButton_tooltipText,
             onPressed: () {
               _addFolder();

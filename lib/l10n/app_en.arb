@@ -84,6 +84,14 @@
   "@homeScreen_deleteFolderDialog_action_delete_label": {
     "description": "Label of the delete action on modal for folder deletion"
   },
+  "homeScreen_tokenCard_copyButton_tooltip": "Copy token",
+  "@homeScreen_tokenCard_copyButton_tooltip": {
+    "description": "Tooltip of the button for copy token on token card"
+  },
+  "homeScreen_tokenCopiedSnackbar_content": "Token copied",
+  "@homeScreen_tokenCopiedSnackbar_content": {
+    "description": "Content of the snackbar for token copied"
+  },
   "accountScreen_addAccount_title": "Add account",
   "@accountScreen_addAccount_title": {
     "description": "Title of the account screen when adding account"

@@ -75,6 +75,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeScreen_deleteFolderDialog_action_delete_label => 'Delete';
 
   @override
+  String get homeScreen_tokenCard_copyButton_tooltip => 'Copy token';
+
+  @override
+  String get homeScreen_tokenCopiedSnackbar_content => 'Token copied';
+
+  @override
   String get accountScreen_addAccount_title => 'Add account';
 
   @override

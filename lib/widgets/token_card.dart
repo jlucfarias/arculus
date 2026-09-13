@@ -1,6 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
+import 'package:arculus/extensions/l10n_extension.dart';
+import 'package:arculus/providers/theme_provider.dart';
 import 'package:arculus/services/otp_service.dart';
 import 'package:arculus/utils/app_constants.dart';
 import 'package:arculus/utils/app_database.dart';
@@ -26,6 +30,7 @@ class _TokenCardState extends State<TokenCard> with TickerProviderStateMixin {
   Timer? _timer;
   String _code = '';
   int _secondsLeft = 30;
+  bool _codeCopied = false;
 
   late final AnimationController _blinkController;
   late final Animation<Color?> _colorAnimation;
@@ -92,10 +97,30 @@ class _TokenCardState extends State<TokenCard> with TickerProviderStateMixin {
   bool get _isLow => _secondsLeft <= 10;
   bool get _isVeryLow => _secondsLeft <= 5;
 
+  void _copyCode() {
+    Clipboard.setData(ClipboardData(text: _code));
+
+    setState(() => _codeCopied = true);
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) setState(() => _codeCopied = false);
+    });
+
+    final l10n = context.l10n;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.homeScreen_tokenCopiedSnackbar_content),
+        duration: const Duration(seconds: 1),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
+    final themeProvider = context.watch<ThemeProvider>();
+    final l10n = context.l10n;
     final midCode = (_code.length / 2).ceil();
 
     return Padding(
@@ -106,6 +131,7 @@ class _TokenCardState extends State<TokenCard> with TickerProviderStateMixin {
             : colorScheme.surface,
         clipBehavior: Clip.antiAlias,
         child: InkWell(
+          onTap: _copyCode,
           onLongPress: () => widget.onSelect(),
           child: Padding(
             padding: const EdgeInsets.symmetric(
@@ -135,7 +161,9 @@ class _TokenCardState extends State<TokenCard> with TickerProviderStateMixin {
                           CircularProgressIndicator(
                             value: _secondsLeft / widget.account.interval,
                             strokeWidth: 3,
-                            backgroundColor: currentColor.withValues(alpha: 0.2),
+                            backgroundColor: currentColor.withValues(
+                              alpha: 0.2,
+                            ),
                             valueColor: AlwaysStoppedAnimation(currentColor),
                           ),
                           Center(
@@ -175,6 +203,27 @@ class _TokenCardState extends State<TokenCard> with TickerProviderStateMixin {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ],
+                          const Spacer(),
+                          IconButton(
+                            style: IconButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap
+                            ),
+                            constraints: const BoxConstraints(),
+                            icon: Icon(
+                              _codeCopied
+                                  ? Icons.check_rounded
+                                  : Icons.copy_rounded,
+                              size: 18,
+                              color: _codeCopied
+                                  ? (themeProvider.themeMode == ThemeMode.light
+                                        ? ThemeColors.successLight
+                                        : ThemeColors.successDark)
+                                  : colorScheme.onSurface,
+                            ),
+                            tooltip: l10n.homeScreen_tokenCard_copyButton_tooltip,
+                            onPressed: _copyCode,
+                          ),
                         ],
                       ),
                       AnimatedBuilder(

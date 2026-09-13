@@ -224,6 +224,18 @@ abstract class AppLocalizations {
   /// **'Delete'**
   String get homeScreen_deleteFolderDialog_action_delete_label;
 
+  /// Tooltip of the button for copy token on token card
+  ///
+  /// In en, this message translates to:
+  /// **'Copy token'**
+  String get homeScreen_tokenCard_copyButton_tooltip;
+
+  /// Content of the snackbar for token copied
+  ///
+  /// In en, this message translates to:
+  /// **'Token copied'**
+  String get homeScreen_tokenCopiedSnackbar_content;
+
   /// Title of the account screen when adding account
   ///
   /// In en, this message translates to:

@@ -21,6 +21,8 @@
   "homeScreen_deleteFolderDialog_content": "Você têm certeza que deseja excluir essa pasta?",
   "homeScreen_deleteFolderDialog_action_cancel_label": "Cancelar",
   "homeScreen_deleteFolderDialog_action_delete_label": "Excluir",
+  "homeScreen_tokenCard_copyButton_tooltip": "Copiar código",
+  "homeScreen_tokenCopiedSnackbar_content": "Código copiado",
   "accountScreen_addAccount_title": "Adicionar conta",
   "accountScreen_editAccount_title": "Editar conta",
   "accountScreen_nameInput_label": "Nome",
