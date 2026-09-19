@@ -32,6 +32,14 @@
   "@homeScreen_deleteAction_tooltipText": {
     "description": "Tooltip text for the delete account action on the home screen"
   },
+  "homeScreen_toggleVisibilityAction_tooltip_on": "Hide tokens",
+  "@homeScreen_toggleVisibilityAction_tooltip_on": {
+    "description": "Tooltip text for the toggle token visibility action on the home screen when state is on"
+  },
+  "homeScreen_toggleVisibilityAction_tooltip_off": "Show tokens",
+  "@homeScreen_toggleVisibilityAction_tooltip_off": {
+    "description": "Tooltip text for the toggle token visibility action on the home screen when state is off"
+  },
   "homeScreen_optionsMenuAction_tooltipText": "More options",
   "@homeScreen_optionsMenuAction_tooltipText": {
     "description": "Tooltip text for the more options action on the home screen"
@@ -91,6 +99,14 @@
   "homeScreen_tokenCopiedSnackbar_content": "Token copied",
   "@homeScreen_tokenCopiedSnackbar_content": {
     "description": "Content of the snackbar for token copied"
+  },
+  "homeScreen_tokenCard_visibilityButton_tooltip_on": "Hide token",
+  "@homeScreen_tokenCard_visibilityButton_tooltip_on": {
+    "description": "Tooltip of the button for toggle token visibility on token card when state is on"
+  },
+  "homeScreen_tokenCard_visibilityButton_tooltip_off": "Show token",
+  "@homeScreen_tokenCard_visibilityButton_tooltip_off": {
+    "description": "Tooltip of the button for toggle token visibility on token card when state is off"
   },
   "accountScreen_addAccount_title": "Add account",
   "@accountScreen_addAccount_title": {

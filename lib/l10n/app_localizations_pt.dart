@@ -35,6 +35,12 @@ class AppLocalizationsPt extends AppLocalizations {
   String get homeScreen_deleteAction_tooltipText => 'Excluir conta';
 
   @override
+  String get homeScreen_toggleVisibilityAction_tooltip_on => 'Esconder códigos';
+
+  @override
+  String get homeScreen_toggleVisibilityAction_tooltip_off => 'Mostrar códigos';
+
+  @override
   String get homeScreen_optionsMenuAction_tooltipText => 'Mais opções';
 
   @override
@@ -80,6 +86,14 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get homeScreen_tokenCopiedSnackbar_content => 'Código copiado';
+
+  @override
+  String get homeScreen_tokenCard_visibilityButton_tooltip_on =>
+      'Esconder código';
+
+  @override
+  String get homeScreen_tokenCard_visibilityButton_tooltip_off =>
+      'Mostrar código';
 
   @override
   String get accountScreen_addAccount_title => 'Adicionar conta';

@@ -20,6 +20,9 @@ Arculus is a free, open-source, multiplatform authentication app built with Flut
 
 - **Free and open source**
 
+- **Security-first design**
+  - Codes hidden by default, revealed on tap
+
 - **Compatibility**
   - Supports the TOTP (Time-based One-Time Password) standard
 

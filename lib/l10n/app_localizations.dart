@@ -146,6 +146,18 @@ abstract class AppLocalizations {
   /// **'Delete account'**
   String get homeScreen_deleteAction_tooltipText;
 
+  /// Tooltip text for the toggle token visibility action on the home screen when state is on
+  ///
+  /// In en, this message translates to:
+  /// **'Hide tokens'**
+  String get homeScreen_toggleVisibilityAction_tooltip_on;
+
+  /// Tooltip text for the toggle token visibility action on the home screen when state is off
+  ///
+  /// In en, this message translates to:
+  /// **'Show tokens'**
+  String get homeScreen_toggleVisibilityAction_tooltip_off;
+
   /// Tooltip text for the more options action on the home screen
   ///
   /// In en, this message translates to:
@@ -235,6 +247,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Token copied'**
   String get homeScreen_tokenCopiedSnackbar_content;
+
+  /// Tooltip of the button for toggle token visibility on token card when state is on
+  ///
+  /// In en, this message translates to:
+  /// **'Hide token'**
+  String get homeScreen_tokenCard_visibilityButton_tooltip_on;
+
+  /// Tooltip of the button for toggle token visibility on token card when state is off
+  ///
+  /// In en, this message translates to:
+  /// **'Show token'**
+  String get homeScreen_tokenCard_visibilityButton_tooltip_off;
 
   /// Title of the account screen when adding account
   ///

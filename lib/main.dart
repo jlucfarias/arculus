@@ -5,6 +5,7 @@ import 'package:flutter_localized_locales/flutter_localized_locales.dart';
 import 'package:arculus/l10n/app_localizations.dart';
 import 'package:arculus/providers/locale_provider.dart';
 import 'package:arculus/providers/theme_provider.dart';
+import 'package:arculus/providers/token_visibility_provider.dart';
 import 'package:arculus/repositories/account_repository.dart';
 import 'package:arculus/repositories/folder_repository.dart';
 import 'package:arculus/screens/home_screen.dart';
@@ -24,6 +25,7 @@ void main() {
         Provider<FolderRepository>(create: (_) => FolderRepository(database)),
         ChangeNotifierProvider<ThemeProvider>(create: (_) => ThemeProvider()),
         ChangeNotifierProvider<LocaleProvider>(create: (_) => LocaleProvider()),
+        ChangeNotifierProvider<TokenVisibilityProvider>(create: (_) => TokenVisibilityProvider()),
       ],
       child: const Arculus(),
     ),

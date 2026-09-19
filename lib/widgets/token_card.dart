@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import 'package:arculus/extensions/l10n_extension.dart';
 import 'package:arculus/providers/theme_provider.dart';
+import 'package:arculus/providers/token_visibility_provider.dart';
 import 'package:arculus/services/otp_service.dart';
 import 'package:arculus/utils/app_constants.dart';
 import 'package:arculus/utils/app_database.dart';
@@ -31,6 +32,8 @@ class _TokenCardState extends State<TokenCard> with TickerProviderStateMixin {
   String _code = '';
   int _secondsLeft = 30;
   bool _codeCopied = false;
+  bool _codeVisible = false;
+  bool? _lastGlobalVisibility;
 
   late final AnimationController _blinkController;
   late final Animation<Color?> _colorAnimation;
@@ -51,6 +54,18 @@ class _TokenCardState extends State<TokenCard> with TickerProviderStateMixin {
 
     _refresh();
     _startTimer();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final currentGlobalVisibility = context.watch<TokenVisibilityProvider>().isTokenVisible;
+
+    if (_lastGlobalVisibility != currentGlobalVisibility) {
+      _lastGlobalVisibility = currentGlobalVisibility;
+      _codeVisible = currentGlobalVisibility;
+    }
   }
 
   @override
@@ -98,6 +113,10 @@ class _TokenCardState extends State<TokenCard> with TickerProviderStateMixin {
   bool get _isVeryLow => _secondsLeft <= 5;
 
   void _copyCode() {
+    if (_codeCopied) {
+      return;
+    }
+
     Clipboard.setData(ClipboardData(text: _code));
 
     setState(() => _codeCopied = true);
@@ -113,6 +132,10 @@ class _TokenCardState extends State<TokenCard> with TickerProviderStateMixin {
         duration: const Duration(seconds: 1),
       ),
     );
+  }
+
+  void _toggleCodeVisibility() {
+    setState(() => _codeVisible = !_codeVisible);
   }
 
   @override
@@ -196,7 +219,7 @@ class _TokenCardState extends State<TokenCard> with TickerProviderStateMixin {
                             overflow: TextOverflow.ellipsis,
                           ),
                           if (widget.account.issuer != null) ...[
-                            const SizedBox(width: 10),
+                            const SizedBox(width: ThemeSpacing.small),
                             Text(
                               '(${widget.account.name})',
                               style: textTheme.bodyMedium,
@@ -207,21 +230,40 @@ class _TokenCardState extends State<TokenCard> with TickerProviderStateMixin {
                           IconButton(
                             style: IconButton.styleFrom(
                               padding: EdgeInsets.zero,
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            constraints: const BoxConstraints(),
+                            icon: Icon(
+                              _codeVisible
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                              size: ThemeSpacing.medium,
+                            ),
+                            tooltip: _codeVisible
+                                ? l10n.homeScreen_tokenCard_visibilityButton_tooltip_on
+                                : l10n.homeScreen_tokenCard_visibilityButton_tooltip_off,
+                            onPressed: _toggleCodeVisibility,
+                          ),
+                          const SizedBox(width: ThemeSpacing.small),
+                          IconButton(
+                            style: IconButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
                             constraints: const BoxConstraints(),
                             icon: Icon(
                               _codeCopied
                                   ? Icons.check_rounded
                                   : Icons.copy_rounded,
-                              size: 18,
+                              size: ThemeSpacing.medium,
                               color: _codeCopied
                                   ? (themeProvider.themeMode == ThemeMode.light
                                         ? ThemeColors.successLight
                                         : ThemeColors.successDark)
                                   : colorScheme.onSurface,
                             ),
-                            tooltip: l10n.homeScreen_tokenCard_copyButton_tooltip,
+                            tooltip:
+                                l10n.homeScreen_tokenCard_copyButton_tooltip,
                             onPressed: _copyCode,
                           ),
                         ],
@@ -255,7 +297,11 @@ class _TokenCardState extends State<TokenCard> with TickerProviderStateMixin {
                                             const TextStyle())
                                         .copyWith(color: currentColor),
                                 child: Text(
-                                  _code.substring(0, midCode),
+                                  _codeVisible
+                                      ? _code.substring(0, midCode)
+                                      : _code
+                                            .substring(0, midCode)
+                                            .replaceAll(RegExp(r'[0-9]'), '•'),
                                   textHeightBehavior: const TextHeightBehavior(
                                     applyHeightToFirstAscent: true,
                                     applyHeightToLastDescent: true,
@@ -270,7 +316,11 @@ class _TokenCardState extends State<TokenCard> with TickerProviderStateMixin {
                                             const TextStyle())
                                         .copyWith(color: currentColor),
                                 child: Text(
-                                  _code.substring(midCode),
+                                  _codeVisible
+                                      ? _code.substring(midCode)
+                                      : _code
+                                            .substring(midCode)
+                                            .replaceAll(RegExp(r'[0-9]'), '•'),
                                   textHeightBehavior: const TextHeightBehavior(
                                     applyHeightToFirstAscent: true,
                                     applyHeightToLastDescent: true,

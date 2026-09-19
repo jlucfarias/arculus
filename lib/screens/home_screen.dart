@@ -4,6 +4,7 @@ import 'package:drift/drift.dart' hide Column;
 import 'package:provider/provider.dart';
 
 import 'package:arculus/extensions/l10n_extension.dart';
+import 'package:arculus/providers/token_visibility_provider.dart';
 import 'package:arculus/repositories/account_repository.dart';
 import 'package:arculus/repositories/folder_repository.dart';
 import 'package:arculus/screens/account_screen.dart';
@@ -251,7 +252,18 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _toggleCodeVisibility() {
+    final tokenVisibilityProvider = context.read<TokenVisibilityProvider>();
+
+    setState(() {
+      tokenVisibilityProvider.toggleTokenVisibility();
+    });
+  }
+
   PreferredSizeWidget _buildAppBar() {
+    final tokenVisibilityProvider = context.watch<TokenVisibilityProvider>();
+    final accountRepository = context.read<AccountRepository>();
+
     return PreferredSize(
       preferredSize: const Size.fromHeight(kToolbarHeight),
       child: ValueListenableBuilder<int?>(
@@ -283,37 +295,75 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: () => _deleteAccount(accountId: selectedId),
                   tooltip: l10n.homeScreen_deleteAction_tooltipText,
                 ),
-              ] else
-                PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert),
-                  tooltip: l10n.homeScreen_optionsMenuAction_tooltipText,
-                  popUpAnimationStyle: AnimationStyle(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  ),
-                  onSelected: (String value) {
-                    switch (value) {
-                      case 'settings':
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SettingsScreen(),
+              ] else ...[
+                StreamBuilder<List<(Account, List<int>)>>(
+                  stream: accountRepository.watchAllWithFolderIds(),
+                  builder: (context, snapshot) {
+                    return ValueListenableBuilder<int?>(
+                      valueListenable: _selectedFolderId,
+                      builder: (context, selectedFolderId, child) {
+                        final accounts = snapshot.data ?? [];
+                        final bool hasContent = selectedFolderId == null
+                            ? accounts.isNotEmpty
+                            : accounts.any(
+                                (item) => item.$2.contains(selectedFolderId),
+                              );
+
+                        if (!hasContent) {
+                          return const SizedBox.shrink();
+                        }
+
+                        return IconButton(
+                          style: IconButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
+                          constraints: const BoxConstraints(),
+                          icon: Icon(
+                            tokenVisibilityProvider.isTokenVisible
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined,
+                          ),
+                          tooltip: tokenVisibilityProvider.isTokenVisible
+                              ? l10n.homeScreen_toggleVisibilityAction_tooltip_on
+                              : l10n.homeScreen_toggleVisibilityAction_tooltip_off,
+                          onPressed: _toggleCodeVisibility,
                         );
-                        break;
-                    }
-                  },
-                  itemBuilder: (BuildContext context) {
-                    return [
-                      PopupMenuItem<String>(
-                        value: 'settings',
-                        child: Text(
-                          l10n.homeScreen_optionsMenuAction_settingsItemLabel,
-                        ),
-                      ),
-                    ];
+                      },
+                    );
                   },
                 ),
+              ],
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert),
+                tooltip: l10n.homeScreen_optionsMenuAction_tooltipText,
+                popUpAnimationStyle: AnimationStyle(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                ),
+                onSelected: (String value) {
+                  switch (value) {
+                    case 'settings':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SettingsScreen(),
+                        ),
+                      );
+                      break;
+                  }
+                },
+                itemBuilder: (BuildContext context) {
+                  return [
+                    PopupMenuItem<String>(
+                      value: 'settings',
+                      child: Text(
+                        l10n.homeScreen_optionsMenuAction_settingsItemLabel,
+                      ),
+                    ),
+                  ];
+                },
+              ),
             ],
           );
         },

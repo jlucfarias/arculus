@@ -35,6 +35,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeScreen_deleteAction_tooltipText => 'Delete account';
 
   @override
+  String get homeScreen_toggleVisibilityAction_tooltip_on => 'Hide tokens';
+
+  @override
+  String get homeScreen_toggleVisibilityAction_tooltip_off => 'Show tokens';
+
+  @override
   String get homeScreen_optionsMenuAction_tooltipText => 'More options';
 
   @override
@@ -79,6 +85,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeScreen_tokenCopiedSnackbar_content => 'Token copied';
+
+  @override
+  String get homeScreen_tokenCard_visibilityButton_tooltip_on => 'Hide token';
+
+  @override
+  String get homeScreen_tokenCard_visibilityButton_tooltip_off => 'Show token';
 
   @override
   String get accountScreen_addAccount_title => 'Add account';
