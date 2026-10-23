@@ -32,6 +32,10 @@
   "@homeScreen_deleteAction_tooltipText": {
     "description": "Tooltip text for the delete account action on the home screen"
   },
+  "homeScreen_searchAccountAction_tooltipText": "Search account",
+  "@homeScreen_searchAccountAction_tooltipText": {
+    "description": "Tooltip text for the search account action on the home screen"
+  },
   "homeScreen_toggleVisibilityAction_tooltip_on": "Hide tokens",
   "@homeScreen_toggleVisibilityAction_tooltip_on": {
     "description": "Tooltip text for the toggle token visibility action on the home screen when state is on"
@@ -51,6 +55,10 @@
   "homeScreen_floatActionButton_label": "Add",
   "@homeScreen_floatActionButton_label": {
     "description": "Label for the floating action button on home screen"
+  },
+  "homeScreen_searchBar_searchAccount_hint": "Search",
+  "@homeScreen_searchBar_searchAccount_hint": {
+    "description": "Hint text of the search account field in home screen"
   },
   "homeScreen_foldersBar_allAccountsFolder_label": "All",
   "@homeScreen_foldersBar_allAccountsFolder_label": {

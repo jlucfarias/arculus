@@ -35,6 +35,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeScreen_deleteAction_tooltipText => 'Delete account';
 
   @override
+  String get homeScreen_searchAccountAction_tooltipText => 'Search account';
+
+  @override
   String get homeScreen_toggleVisibilityAction_tooltip_on => 'Hide tokens';
 
   @override
@@ -48,6 +51,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeScreen_floatActionButton_label => 'Add';
+
+  @override
+  String get homeScreen_searchBar_searchAccount_hint => 'Search';
 
   @override
   String get homeScreen_foldersBar_allAccountsFolder_label => 'All';

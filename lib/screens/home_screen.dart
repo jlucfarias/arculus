@@ -24,13 +24,17 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ValueNotifier<int?> _selectedAccountId = ValueNotifier<int?>(null);
   final ValueNotifier<int?> _selectedFolderId = ValueNotifier<int?>(null);
+  final ValueNotifier<bool> _isSearching = ValueNotifier<bool>(false);
+  final ValueNotifier<String?> _searchQuery = ValueNotifier<String?>(null);
   final _folderNameController = TextEditingController();
+  final _searchController = TextEditingController();
 
   @override
   void dispose() {
     _selectedAccountId.dispose();
     _selectedFolderId.dispose();
     _folderNameController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -296,6 +300,25 @@ class _HomeScreenState extends State<HomeScreen> {
                   tooltip: l10n.homeScreen_deleteAction_tooltipText,
                 ),
               ] else ...[
+                ValueListenableBuilder<bool>(
+                  valueListenable: _isSearching,
+                  builder: (context, isSearching, child) {
+                    return IconButton(
+                      icon: Icon(
+                        _isSearching.value ? Icons.close : Icons.search_rounded,
+                      ),
+                      onPressed: () {
+                        _isSearching.value = !_isSearching.value;
+
+                        if (!_isSearching.value) {
+                          _searchQuery.value = null;
+                          _searchController.clear();
+                        }
+                      },
+                      tooltip: l10n.homeScreen_searchAccountAction_tooltipText,
+                    );
+                  },
+                ),
                 StreamBuilder<List<(Account, List<int>)>>(
                   stream: accountRepository.watchAllWithFolderIds(),
                   builder: (context, snapshot) {
@@ -367,6 +390,36 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    final l10n = context.l10n;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        ThemeSpacing.medium,
+        ThemeSpacing.small,
+        ThemeSpacing.medium,
+        ThemeSpacing.none,
+      ),
+      child: TweenAnimationBuilder<Offset>(
+        tween: Tween<Offset>(begin: const Offset(0, -0.15), end: Offset.zero),
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        builder: (context, offset, child) {
+          return FractionalTranslation(translation: offset, child: child);
+        },
+        child: TextField(
+          controller: _searchController,
+          autofocus: true,
+          decoration: InputDecoration(
+            hintText: l10n.homeScreen_searchBar_searchAccount_hint,
+            prefixIcon: Icon(Icons.search_rounded),
+          ),
+          onChanged: (v) => setState(() => _searchQuery.value = v),
+        ),
       ),
     );
   }
@@ -548,6 +601,16 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
             _foldersBar(),
+            ValueListenableBuilder<bool>(
+              valueListenable: _isSearching,
+              builder: (context, isSearching, child) {
+                if (isSearching) {
+                  return _buildSearchBar();
+                }
+
+                return const SizedBox.shrink();
+              },
+            ),
             Expanded(
               child: StreamBuilder<List<(Account, List<int>)>>(
                 stream: accountRepository.watchAllWithFolderIds(),
@@ -579,7 +642,27 @@ class _HomeScreenState extends State<HomeScreen> {
                         return _emptyList();
                       }
 
-                      return _accountList(filteredAccounts);
+                      return ValueListenableBuilder<String?>(
+                        valueListenable: _searchQuery,
+                        builder: (context, searchQuery, child) {
+                          if (searchQuery != null) {
+                            filteredAccounts = filteredAccounts
+                                .where(
+                                  (item) =>
+                                      item.name.contains(searchQuery) ||
+                                      item.issuer!.contains(searchQuery),
+                                )
+                                .map((item) => item)
+                                .toList();
+                          }
+
+                          if (filteredAccounts.isEmpty) {
+                            return _emptyList();
+                          }
+
+                          return _accountList(filteredAccounts);
+                        },
+                      );
                     },
                   );
                 },

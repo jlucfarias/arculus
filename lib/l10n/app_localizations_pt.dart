@@ -35,6 +35,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get homeScreen_deleteAction_tooltipText => 'Excluir conta';
 
   @override
+  String get homeScreen_searchAccountAction_tooltipText => 'Pesquisar conta';
+
+  @override
   String get homeScreen_toggleVisibilityAction_tooltip_on => 'Esconder códigos';
 
   @override
@@ -48,6 +51,9 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get homeScreen_floatActionButton_label => 'Adicionar';
+
+  @override
+  String get homeScreen_searchBar_searchAccount_hint => 'Pesquisar';
 
   @override
   String get homeScreen_foldersBar_allAccountsFolder_label => 'Todas';

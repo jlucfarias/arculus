@@ -146,6 +146,12 @@ abstract class AppLocalizations {
   /// **'Delete account'**
   String get homeScreen_deleteAction_tooltipText;
 
+  /// Tooltip text for the search account action on the home screen
+  ///
+  /// In en, this message translates to:
+  /// **'Search account'**
+  String get homeScreen_searchAccountAction_tooltipText;
+
   /// Tooltip text for the toggle token visibility action on the home screen when state is on
   ///
   /// In en, this message translates to:
@@ -175,6 +181,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add'**
   String get homeScreen_floatActionButton_label;
+
+  /// Hint text of the search account field in home screen
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get homeScreen_searchBar_searchAccount_hint;
 
   /// Label of the all accounts folder in folders bar
   ///
