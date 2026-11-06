@@ -27,7 +27,7 @@ O Arculus é um aplicativo de autenticação gratuito, de código aberto e multi
   - Suporta o padrão TOTP (Senha de uso único baseada em tempo)
 
 - **Organização e usabilidade**
-  - Ícones automáticos
+  - Ícones automáticos ou personalizados
   - Agrupe itens em pastas
   - Pesquise por nome ou emissor
   - Temas claro, escuro e AMOLED

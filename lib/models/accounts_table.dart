@@ -9,6 +9,8 @@ class Accounts extends Table {
   TextColumn get algorithm => text()();
   IntColumn get interval => integer()();
   IntColumn get digits => integer()();
+  TextColumn get imagePath => text().nullable()();
+
   DateTimeColumn get createdAt => dateTime().nullable()();
   DateTimeColumn get updatedAt => dateTime().nullable()();
 }

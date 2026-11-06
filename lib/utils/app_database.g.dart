@@ -93,6 +93,17 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _imagePathMeta = const VerificationMeta(
+    'imagePath',
+  );
+  @override
+  late final GeneratedColumn<String> imagePath = GeneratedColumn<String>(
+    'image_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -125,6 +136,7 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
     algorithm,
     interval,
     digits,
+    imagePath,
     createdAt,
     updatedAt,
   ];
@@ -197,6 +209,12 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
     } else if (isInserting) {
       context.missing(_digitsMeta);
     }
+    if (data.containsKey('image_path')) {
+      context.handle(
+        _imagePathMeta,
+        imagePath.isAcceptableOrUnknown(data['image_path']!, _imagePathMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -250,6 +268,10 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
         DriftSqlType.int,
         data['${effectivePrefix}digits'],
       )!,
+      imagePath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}image_path'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -276,6 +298,7 @@ class Account extends DataClass implements Insertable<Account> {
   final String algorithm;
   final int interval;
   final int digits;
+  final String? imagePath;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   const Account({
@@ -287,6 +310,7 @@ class Account extends DataClass implements Insertable<Account> {
     required this.algorithm,
     required this.interval,
     required this.digits,
+    this.imagePath,
     this.createdAt,
     this.updatedAt,
   });
@@ -303,6 +327,9 @@ class Account extends DataClass implements Insertable<Account> {
     map['algorithm'] = Variable<String>(algorithm);
     map['interval'] = Variable<int>(interval);
     map['digits'] = Variable<int>(digits);
+    if (!nullToAbsent || imagePath != null) {
+      map['image_path'] = Variable<String>(imagePath);
+    }
     if (!nullToAbsent || createdAt != null) {
       map['created_at'] = Variable<DateTime>(createdAt);
     }
@@ -324,6 +351,9 @@ class Account extends DataClass implements Insertable<Account> {
       algorithm: Value(algorithm),
       interval: Value(interval),
       digits: Value(digits),
+      imagePath: imagePath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imagePath),
       createdAt: createdAt == null && nullToAbsent
           ? const Value.absent()
           : Value(createdAt),
@@ -347,6 +377,7 @@ class Account extends DataClass implements Insertable<Account> {
       algorithm: serializer.fromJson<String>(json['algorithm']),
       interval: serializer.fromJson<int>(json['interval']),
       digits: serializer.fromJson<int>(json['digits']),
+      imagePath: serializer.fromJson<String?>(json['imagePath']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
     );
@@ -363,6 +394,7 @@ class Account extends DataClass implements Insertable<Account> {
       'algorithm': serializer.toJson<String>(algorithm),
       'interval': serializer.toJson<int>(interval),
       'digits': serializer.toJson<int>(digits),
+      'imagePath': serializer.toJson<String?>(imagePath),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
     };
@@ -377,6 +409,7 @@ class Account extends DataClass implements Insertable<Account> {
     String? algorithm,
     int? interval,
     int? digits,
+    Value<String?> imagePath = const Value.absent(),
     Value<DateTime?> createdAt = const Value.absent(),
     Value<DateTime?> updatedAt = const Value.absent(),
   }) => Account(
@@ -388,6 +421,7 @@ class Account extends DataClass implements Insertable<Account> {
     algorithm: algorithm ?? this.algorithm,
     interval: interval ?? this.interval,
     digits: digits ?? this.digits,
+    imagePath: imagePath.present ? imagePath.value : this.imagePath,
     createdAt: createdAt.present ? createdAt.value : this.createdAt,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
   );
@@ -401,6 +435,7 @@ class Account extends DataClass implements Insertable<Account> {
       algorithm: data.algorithm.present ? data.algorithm.value : this.algorithm,
       interval: data.interval.present ? data.interval.value : this.interval,
       digits: data.digits.present ? data.digits.value : this.digits,
+      imagePath: data.imagePath.present ? data.imagePath.value : this.imagePath,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -417,6 +452,7 @@ class Account extends DataClass implements Insertable<Account> {
           ..write('algorithm: $algorithm, ')
           ..write('interval: $interval, ')
           ..write('digits: $digits, ')
+          ..write('imagePath: $imagePath, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -433,6 +469,7 @@ class Account extends DataClass implements Insertable<Account> {
     algorithm,
     interval,
     digits,
+    imagePath,
     createdAt,
     updatedAt,
   );
@@ -448,6 +485,7 @@ class Account extends DataClass implements Insertable<Account> {
           other.algorithm == this.algorithm &&
           other.interval == this.interval &&
           other.digits == this.digits &&
+          other.imagePath == this.imagePath &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -461,6 +499,7 @@ class AccountsCompanion extends UpdateCompanion<Account> {
   final Value<String> algorithm;
   final Value<int> interval;
   final Value<int> digits;
+  final Value<String?> imagePath;
   final Value<DateTime?> createdAt;
   final Value<DateTime?> updatedAt;
   const AccountsCompanion({
@@ -472,6 +511,7 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     this.algorithm = const Value.absent(),
     this.interval = const Value.absent(),
     this.digits = const Value.absent(),
+    this.imagePath = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
@@ -484,6 +524,7 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     required String algorithm,
     required int interval,
     required int digits,
+    this.imagePath = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   }) : name = Value(name),
@@ -501,6 +542,7 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     Expression<String>? algorithm,
     Expression<int>? interval,
     Expression<int>? digits,
+    Expression<String>? imagePath,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
   }) {
@@ -513,6 +555,7 @@ class AccountsCompanion extends UpdateCompanion<Account> {
       if (algorithm != null) 'algorithm': algorithm,
       if (interval != null) 'interval': interval,
       if (digits != null) 'digits': digits,
+      if (imagePath != null) 'image_path': imagePath,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -527,6 +570,7 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     Value<String>? algorithm,
     Value<int>? interval,
     Value<int>? digits,
+    Value<String?>? imagePath,
     Value<DateTime?>? createdAt,
     Value<DateTime?>? updatedAt,
   }) {
@@ -539,6 +583,7 @@ class AccountsCompanion extends UpdateCompanion<Account> {
       algorithm: algorithm ?? this.algorithm,
       interval: interval ?? this.interval,
       digits: digits ?? this.digits,
+      imagePath: imagePath ?? this.imagePath,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -571,6 +616,9 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     if (digits.present) {
       map['digits'] = Variable<int>(digits.value);
     }
+    if (imagePath.present) {
+      map['image_path'] = Variable<String>(imagePath.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -591,6 +639,7 @@ class AccountsCompanion extends UpdateCompanion<Account> {
           ..write('algorithm: $algorithm, ')
           ..write('interval: $interval, ')
           ..write('digits: $digits, ')
+          ..write('imagePath: $imagePath, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -1150,6 +1199,7 @@ typedef $$AccountsTableCreateCompanionBuilder =
       required String algorithm,
       required int interval,
       required int digits,
+      Value<String?> imagePath,
       Value<DateTime?> createdAt,
       Value<DateTime?> updatedAt,
     });
@@ -1163,6 +1213,7 @@ typedef $$AccountsTableUpdateCompanionBuilder =
       Value<String> algorithm,
       Value<int> interval,
       Value<int> digits,
+      Value<String?> imagePath,
       Value<DateTime?> createdAt,
       Value<DateTime?> updatedAt,
     });
@@ -1236,6 +1287,11 @@ class $$AccountsTableFilterComposer
 
   ColumnFilters<int> get digits => $composableBuilder(
     column: $table.digits,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get imagePath => $composableBuilder(
+    column: $table.imagePath,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1324,6 +1380,11 @@ class $$AccountsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get imagePath => $composableBuilder(
+    column: $table.imagePath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -1367,6 +1428,9 @@ class $$AccountsTableAnnotationComposer
 
   GeneratedColumn<int> get digits =>
       $composableBuilder(column: $table.digits, builder: (column) => column);
+
+  GeneratedColumn<String> get imagePath =>
+      $composableBuilder(column: $table.imagePath, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -1436,6 +1500,7 @@ class $$AccountsTableTableManager
                 Value<String> algorithm = const Value.absent(),
                 Value<int> interval = const Value.absent(),
                 Value<int> digits = const Value.absent(),
+                Value<String?> imagePath = const Value.absent(),
                 Value<DateTime?> createdAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
               }) => AccountsCompanion(
@@ -1447,6 +1512,7 @@ class $$AccountsTableTableManager
                 algorithm: algorithm,
                 interval: interval,
                 digits: digits,
+                imagePath: imagePath,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
@@ -1460,6 +1526,7 @@ class $$AccountsTableTableManager
                 required String algorithm,
                 required int interval,
                 required int digits,
+                Value<String?> imagePath = const Value.absent(),
                 Value<DateTime?> createdAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
               }) => AccountsCompanion.insert(
@@ -1471,6 +1538,7 @@ class $$AccountsTableTableManager
                 algorithm: algorithm,
                 interval: interval,
                 digits: digits,
+                imagePath: imagePath,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),

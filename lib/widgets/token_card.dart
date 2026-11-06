@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -183,6 +184,28 @@ class _TokenCardState extends State<TokenCard> with TickerProviderStateMixin {
                       return Stack(
                         fit: StackFit.expand,
                         children: [
+                          if (widget.account.imagePath != null) ...[
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(50),
+                              child: Image.file(
+                                File(widget.account.imagePath!),
+                                fit: BoxFit.cover,
+                                width: 72,
+                                height: 72,
+                              ),
+                            ),
+                          ] else ...[
+                            Center(
+                              child: Text(
+                                (widget.account.issuer ?? widget.account.name)
+                                    .substring(0, 1)
+                                    .toUpperCase(),
+                                style: textTheme.headlineLarge?.copyWith(
+                                  color: colorScheme.onPrimary,
+                                ),
+                              ),
+                            ),
+                          ],
                           CircularProgressIndicator(
                             value: _secondsLeft / widget.account.interval,
                             strokeWidth: 3,
@@ -190,16 +213,6 @@ class _TokenCardState extends State<TokenCard> with TickerProviderStateMixin {
                               alpha: 0.2,
                             ),
                             valueColor: AlwaysStoppedAnimation(currentColor),
-                          ),
-                          Center(
-                            child: Text(
-                              (widget.account.issuer ?? widget.account.name)
-                                  .substring(0, 1)
-                                  .toUpperCase(),
-                              style: textTheme.headlineLarge?.copyWith(
-                                color: colorScheme.onPrimary,
-                              ),
-                            ),
                           ),
                         ],
                       );

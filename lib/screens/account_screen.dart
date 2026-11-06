@@ -1,8 +1,12 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:otp/otp.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:drift/drift.dart' hide Column;
+import 'package:file_picker/file_picker.dart';
 
 import 'package:arculus/extensions/l10n_extension.dart';
 import 'package:arculus/repositories/account_repository.dart';
@@ -51,6 +55,7 @@ class _AccountScreenState extends State<AccountScreen> {
   late String _selectedAlgorithm = algorithmOptions.first.value;
   bool _showSecret = false;
   bool _isSaving = false;
+  File? _selectedImage;
 
   @override
   void initState() {
@@ -65,6 +70,10 @@ class _AccountScreenState extends State<AccountScreen> {
       _selectedAlgorithm = account.algorithm;
       _intervalController.text = account.interval.toString();
       _digitsController.text = account.digits.toString();
+
+      if (account.imagePath != null) {
+        _selectedImage = File(account.imagePath!);
+      }
     }
   }
 
@@ -309,6 +318,17 @@ class _AccountScreenState extends State<AccountScreen> {
           .replaceAll(' ', '')
           .toUpperCase();
       int accountId = isEditing ? widget.accountToEdit!.id : 0;
+      String? finalImagePath = widget.accountToEdit?.imagePath;
+
+      if (_selectedImage != null) {
+        String temporaryPath = _selectedImage!.path;
+        final directory = await getApplicationDocumentsDirectory();
+        final fileName = path.basename(temporaryPath);
+        final savedImage = await File(
+          temporaryPath,
+        ).copy('${directory.path}/$fileName');
+        finalImagePath = savedImage.path;
+      }
 
       if (isEditing) {
         final account = AccountsCompanion(
@@ -322,6 +342,7 @@ class _AccountScreenState extends State<AccountScreen> {
             int.tryParse(_intervalController.text) ?? defaultInterval,
           ),
           digits: Value(int.tryParse(_digitsController.text) ?? defaultDigits),
+          imagePath: Value(finalImagePath),
         );
 
         await accountRepository.update(account);
@@ -334,6 +355,7 @@ class _AccountScreenState extends State<AccountScreen> {
           algorithm: _selectedAlgorithm,
           interval: int.tryParse(_intervalController.text) ?? defaultInterval,
           digits: int.tryParse(_digitsController.text) ?? defaultDigits,
+          imagePath: Value(finalImagePath),
         );
 
         accountId = await accountRepository.insert(account);
@@ -370,9 +392,24 @@ class _AccountScreenState extends State<AccountScreen> {
     }
   }
 
+  Future<void> _pickImage() async {
+    try {
+      PlatformFile? result = await FilePicker.pickFile(type: FileType.image);
+
+      if (result != null && result.path != null) {
+        setState(() {
+          _selectedImage = File(result.path!);
+        });
+      }
+    } catch (e) {
+      print("Error: could not select file: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -398,226 +435,275 @@ class _AccountScreenState extends State<AccountScreen> {
             key: _formKey,
             child: Column(
               children: [
-                TextFormField(
-                  controller: _nameController,
-                  decoration: InputDecoration(
-                    labelText: l10n.accountScreen_nameInput_label,
-                    prefixIcon: Icon(Icons.account_box),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return l10n.accountScreen_nameInput_emptyErrorMessage;
-                    }
-
-                    return null;
-                  },
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                ),
-                const SizedBox(height: ThemeSpacing.halfMedium),
-                TextFormField(
-                  controller: _issuerController,
-                  decoration: InputDecoration(
-                    labelText: l10n.accountScreen_issuerInput_label,
-                    prefixIcon: Icon(Icons.supervisor_account),
-                  ),
-                ),
-                const SizedBox(height: ThemeSpacing.halfMedium),
-                InkWell(
-                  onTap: () {
-                    _showFoldersModal();
-                  },
-                  child: InputDecorator(
-                    decoration: InputDecoration(
-                      labelText: l10n.accountScreen_foldersInput_label,
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.folder),
-                    ),
-                    child: Text(_folderController.text),
-                  ),
-                ),
-                const SizedBox(height: ThemeSpacing.halfMedium),
-                TextFormField(
-                  controller: _secretController,
-                  obscureText: !_showSecret,
-                  decoration: InputDecoration(
-                    labelText: l10n.accountScreen_secretInput_label,
-                    prefixIcon: Icon(Icons.fingerprint),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _showSecret ? Icons.visibility_off : Icons.visibility,
-                      ),
-                      tooltip: l10n.accountScreen_secretInput_showSecretTooltip,
-                      onPressed: () {
-                        setState(() {
-                          _showSecret = !_showSecret;
-                        });
-                      },
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return l10n.accountScreen_secretInput_emptyErrorMessage;
-                    }
-
-                    if (!OtpService.isValidSecret(value)) {
-                      return l10n.accountScreen_secretInput_invalidErrorMessage;
-                    }
-
-                    return null;
-                  },
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                ),
-                const SizedBox(height: ThemeSpacing.halfMedium),
-                ExpansionTile(
-                  title: Text(l10n.accountScreen_advancedExpander_label),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const SizedBox(height: ThemeSpacing.halfMedium),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: LayoutBuilder(
-                            builder: (context, constraints) {
-                              return DropdownMenu<String>(
-                                enabled:
-                                    AppConstants.tokenTypeOptions.length > 1,
-                                initialSelection: _selectedTokenType,
-                                label: Text(
-                                  l10n.accountScreen_tokeTypeSelector_label,
+                    GestureDetector(
+                      onTap: _pickImage,
+                      child: Container(
+                        width: 72,
+                        height: 72,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(ThemeRadii.round),
+                          border: Border.all(color: colorScheme.onSurface),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(ThemeRadii.round),
+                          child: _selectedImage != null
+                              ? Image.file(
+                                  File(_selectedImage!.path),
+                                  fit: BoxFit.cover,
+                                  width: 72,
+                                  height: 72,
+                                )
+                              : Icon(
+                                  Icons.add_photo_alternate_outlined,
+                                  color: colorScheme.onSurface,
+                                  size: 24,
                                 ),
-                                width: constraints.maxWidth,
-                                dropdownMenuEntries: AppConstants
-                                    .tokenTypeOptions
-                                    .map((option) {
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: ThemeSpacing.halfMedium),
+                  ],
+                ),
+                const SizedBox(height: ThemeSpacing.medium),
+                Column(
+                  children: [
+                    TextFormField(
+                      controller: _nameController,
+                      decoration: InputDecoration(
+                        labelText: l10n.accountScreen_nameInput_label,
+                        prefixIcon: Icon(Icons.account_box),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return l10n.accountScreen_nameInput_emptyErrorMessage;
+                        }
+
+                        return null;
+                      },
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                    ),
+                    const SizedBox(height: ThemeSpacing.halfMedium),
+                    TextFormField(
+                      controller: _issuerController,
+                      decoration: InputDecoration(
+                        labelText: l10n.accountScreen_issuerInput_label,
+                        prefixIcon: Icon(Icons.supervisor_account),
+                      ),
+                    ),
+                    const SizedBox(height: ThemeSpacing.halfMedium),
+                    InkWell(
+                      onTap: () {
+                        _showFoldersModal();
+                      },
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          labelText: l10n.accountScreen_foldersInput_label,
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.folder),
+                        ),
+                        child: Text(_folderController.text),
+                      ),
+                    ),
+                    const SizedBox(height: ThemeSpacing.halfMedium),
+                    TextFormField(
+                      controller: _secretController,
+                      obscureText: !_showSecret,
+                      decoration: InputDecoration(
+                        labelText: l10n.accountScreen_secretInput_label,
+                        prefixIcon: Icon(Icons.fingerprint),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _showSecret
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
+                          tooltip:
+                              l10n.accountScreen_secretInput_showSecretTooltip,
+                          onPressed: () {
+                            setState(() {
+                              _showSecret = !_showSecret;
+                            });
+                          },
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return l10n
+                              .accountScreen_secretInput_emptyErrorMessage;
+                        }
+
+                        if (!OtpService.isValidSecret(value)) {
+                          return l10n
+                              .accountScreen_secretInput_invalidErrorMessage;
+                        }
+
+                        return null;
+                      },
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                    ),
+                    const SizedBox(height: ThemeSpacing.halfMedium),
+                    ExpansionTile(
+                      title: Text(l10n.accountScreen_advancedExpander_label),
+                      children: [
+                        const SizedBox(height: ThemeSpacing.halfMedium),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  return DropdownMenu<String>(
+                                    enabled:
+                                        AppConstants.tokenTypeOptions.length >
+                                        1,
+                                    initialSelection: _selectedTokenType,
+                                    label: Text(
+                                      l10n.accountScreen_tokeTypeSelector_label,
+                                    ),
+                                    width: constraints.maxWidth,
+                                    dropdownMenuEntries: AppConstants
+                                        .tokenTypeOptions
+                                        .map((option) {
+                                          return DropdownMenuEntry(
+                                            value: option.value,
+                                            label: option.label,
+                                          );
+                                        })
+                                        .toList(),
+                                    onSelected: (String? value) {
+                                      if (value != null) {
+                                        setState(() {
+                                          _selectedTokenType = value;
+                                        });
+                                      }
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: ThemeSpacing.small),
+                            Expanded(
+                              child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  return DropdownMenu<String>(
+                                    enabled: algorithmOptions.length > 1,
+                                    initialSelection: _selectedAlgorithm,
+                                    label: Text(
+                                      l10n.accountScreen_algorithmSelector_label,
+                                    ),
+                                    dropdownMenuEntries: algorithmOptions.map((
+                                      option,
+                                    ) {
                                       return DropdownMenuEntry(
                                         value: option.value,
                                         label: option.label,
                                       );
-                                    })
-                                    .toList(),
-                                onSelected: (String? value) {
-                                  if (value != null) {
-                                    setState(() {
-                                      _selectedTokenType = value;
-                                    });
-                                  }
-                                },
-                              );
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: ThemeSpacing.small),
-                        Expanded(
-                          child: LayoutBuilder(
-                            builder: (context, constraints) {
-                              return DropdownMenu<String>(
-                                enabled: algorithmOptions.length > 1,
-                                initialSelection: _selectedAlgorithm,
-                                label: Text(
-                                  l10n.accountScreen_algorithmSelector_label,
-                                ),
-                                dropdownMenuEntries: algorithmOptions.map((
-                                  option,
-                                ) {
-                                  return DropdownMenuEntry(
-                                    value: option.value,
-                                    label: option.label,
+                                    }).toList(),
+                                    onSelected: (String? value) {
+                                      if (value != null) {
+                                        setState(() {
+                                          _selectedAlgorithm = value;
+                                        });
+                                      }
+                                    },
                                   );
-                                }).toList(),
-                                onSelected: (String? value) {
-                                  if (value != null) {
-                                    setState(() {
-                                      _selectedAlgorithm = value;
-                                    });
-                                  }
                                 },
-                              );
-                            },
-                          ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: ThemeSpacing.halfMedium),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: _intervalController,
+                                keyboardType: TextInputType.number,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                ],
+                                decoration: InputDecoration(
+                                  labelText:
+                                      l10n.accountScreen_intervalInput_label,
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return l10n
+                                        .accountScreen_intervalInput_emptyErrorMessage;
+                                  }
+
+                                  final parsed = int.tryParse(value);
+
+                                  if (parsed == null || parsed <= 0) {
+                                    return l10n
+                                        .accountScreen_intervalInput_invalidErrorMessage;
+                                  }
+
+                                  return null;
+                                },
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                              ),
+                            ),
+                            const SizedBox(width: ThemeSpacing.small),
+                            Expanded(
+                              child: TextFormField(
+                                controller: _digitsController,
+                                keyboardType: TextInputType.number,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                ],
+                                decoration: InputDecoration(
+                                  labelText:
+                                      l10n.accountScreen_digitsInput_label,
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return l10n
+                                        .accountScreen_digitsInput_emptyErrorMessage;
+                                  }
+
+                                  if (int.parse(value) == 0) {
+                                    return l10n
+                                        .accountScreen_digitsInput_invalidErrorMessage;
+                                  }
+
+                                  return null;
+                                },
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    const SizedBox(height: ThemeSpacing.halfMedium),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _intervalController,
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                            ],
-                            decoration: InputDecoration(
-                              labelText: l10n.accountScreen_intervalInput_label,
-                            ),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return l10n
-                                    .accountScreen_intervalInput_emptyErrorMessage;
-                              }
-
-                              final parsed = int.tryParse(value);
-
-                              if (parsed == null || parsed <= 0) {
-                                return l10n
-                                    .accountScreen_intervalInput_invalidErrorMessage;
-                              }
-
-                              return null;
-                            },
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteraction,
-                          ),
+                    SizedBox(height: ThemeSpacing.medium),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: _isSaving
+                            ? null
+                            : () => _saveAccount(context),
+                        icon: _isSaving
+                            ? const SizedBox(
+                                width: ThemeSpacing.medium,
+                                height: ThemeSpacing.medium,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : null,
+                        label: Text(
+                          widget.accountToEdit != null
+                              ? l10n.accountScreen_editAccount_confirmButton_label
+                              : l10n.accountScreen_addAccount_confirmButton_label,
                         ),
-                        const SizedBox(width: ThemeSpacing.small),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _digitsController,
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                            ],
-                            decoration: InputDecoration(
-                              labelText: l10n.accountScreen_digitsInput_label,
-                            ),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return l10n
-                                    .accountScreen_digitsInput_emptyErrorMessage;
-                              }
-
-                              if (int.parse(value) == 0) {
-                                return l10n
-                                    .accountScreen_digitsInput_invalidErrorMessage;
-                              }
-
-                              return null;
-                            },
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteraction,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ],
-                ),
-                SizedBox(height: ThemeSpacing.medium),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: _isSaving ? null : () => _saveAccount(context),
-                    icon: _isSaving
-                        ? const SizedBox(
-                            width: ThemeSpacing.medium,
-                            height: ThemeSpacing.medium,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : null,
-                    label: Text(
-                      widget.accountToEdit != null
-                          ? l10n.accountScreen_editAccount_confirmButton_label
-                          : l10n.accountScreen_addAccount_confirmButton_label,
-                    ),
-                  ),
                 ),
               ],
             ),
