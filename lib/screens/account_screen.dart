@@ -40,8 +40,6 @@ class _AccountScreenState extends State<AccountScreen> {
   final _folderNameController = TextEditingController();
   Set<int> _selectedFolders = {};
   final _secretController = TextEditingController();
-  final _tokenTypeController = TextEditingController();
-  final _algorithmController = TextEditingController();
   final _intervalController = TextEditingController(
     text: defaultInterval.toString(),
   );
@@ -49,6 +47,8 @@ class _AccountScreenState extends State<AccountScreen> {
     text: defaultDigits.toString(),
   );
   final _formKey = GlobalKey<FormState>();
+  late String _selectedTokenType = AppConstants.tokenTypeOptions.first.value;
+  late String _selectedAlgorithm = algorithmOptions.first.value;
   bool _showSecret = false;
   bool _isSaving = false;
 
@@ -61,8 +61,8 @@ class _AccountScreenState extends State<AccountScreen> {
       _nameController.text = account.name;
       _issuerController.text = account.issuer ?? '';
       _secretController.text = account.secret;
-      _tokenTypeController.text = account.tokenType;
-      _algorithmController.text = account.algorithm;
+      _selectedTokenType = account.tokenType;
+      _selectedAlgorithm = account.algorithm;
       _intervalController.text = account.interval.toString();
       _digitsController.text = account.digits.toString();
     }
@@ -87,8 +87,6 @@ class _AccountScreenState extends State<AccountScreen> {
     _folderController.dispose();
     _folderNameController.dispose();
     _secretController.dispose();
-    _tokenTypeController.dispose();
-    _algorithmController.dispose();
     _intervalController.dispose();
     _digitsController.dispose();
     super.dispose();
@@ -317,8 +315,8 @@ class _AccountScreenState extends State<AccountScreen> {
           name: Value(name),
           issuer: Value(_issuerController.text),
           secret: Value(secret),
-          tokenType: Value(_tokenTypeController.text),
-          algorithm: Value(_algorithmController.text),
+          tokenType: Value(_selectedTokenType),
+          algorithm: Value(_selectedAlgorithm),
           interval: Value(
             int.tryParse(_intervalController.text) ?? defaultInterval,
           ),
@@ -331,8 +329,8 @@ class _AccountScreenState extends State<AccountScreen> {
           name: name,
           issuer: Value(_issuerController.text),
           secret: secret,
-          tokenType: _tokenTypeController.text,
-          algorithm: _algorithmController.text,
+          tokenType: _selectedTokenType,
+          algorithm: _selectedAlgorithm,
           interval: int.tryParse(_intervalController.text) ?? defaultInterval,
           digits: int.tryParse(_digitsController.text) ?? defaultDigits,
         );
@@ -481,9 +479,7 @@ class _AccountScreenState extends State<AccountScreen> {
                               return DropdownMenu<String>(
                                 enabled:
                                     AppConstants.tokenTypeOptions.length > 1,
-                                controller: _tokenTypeController,
-                                initialSelection:
-                                    AppConstants.tokenTypeOptions.first.value,
+                                initialSelection: _selectedTokenType,
                                 label: Text(
                                   l10n.accountScreen_tokeTypeSelector_label,
                                 ),
@@ -497,6 +493,13 @@ class _AccountScreenState extends State<AccountScreen> {
                                       );
                                     })
                                     .toList(),
+                                onSelected: (String? value) {
+                                  if (value != null) {
+                                    setState(() {
+                                      _selectedTokenType = value;
+                                    });
+                                  }
+                                },
                               );
                             },
                           ),
@@ -507,8 +510,7 @@ class _AccountScreenState extends State<AccountScreen> {
                             builder: (context, constraints) {
                               return DropdownMenu<String>(
                                 enabled: algorithmOptions.length > 1,
-                                controller: _algorithmController,
-                                initialSelection: algorithmOptions.first.value,
+                                initialSelection: _selectedAlgorithm,
                                 label: Text(
                                   l10n.accountScreen_algorithmSelector_label,
                                 ),
@@ -520,6 +522,13 @@ class _AccountScreenState extends State<AccountScreen> {
                                     label: option.label,
                                   );
                                 }).toList(),
+                                onSelected: (String? value) {
+                                  if (value != null) {
+                                    setState(() {
+                                      _selectedAlgorithm = value;
+                                    });
+                                  }
+                                },
                               );
                             },
                           ),

@@ -60,7 +60,9 @@ class _TokenCardState extends State<TokenCard> with TickerProviderStateMixin {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final currentGlobalVisibility = context.watch<TokenVisibilityProvider>().isTokenVisible;
+    final currentGlobalVisibility = context
+        .watch<TokenVisibilityProvider>()
+        .isTokenVisible;
 
     if (_lastGlobalVisibility != currentGlobalVisibility) {
       _lastGlobalVisibility = currentGlobalVisibility;
@@ -76,7 +78,7 @@ class _TokenCardState extends State<TokenCard> with TickerProviderStateMixin {
   }
 
   void _refresh() {
-    if (widget.account.tokenType == TokenType.totp.label) {
+    if (widget.account.tokenType == TokenType.totp.value) {
       _code = OtpService.generateTotp(widget.account);
       _secondsLeft = OtpService.secondsRemaining(widget.account.interval);
 
