@@ -303,6 +303,7 @@ class _AccountScreenState extends State<AccountScreen> {
       final accountRepository = context.read<AccountRepository>();
       final isEditing = widget.accountToEdit != null;
       final name = _nameController.text.trim();
+      final issuer = _issuerController.text.trim();
       final secret = _secretController.text
           .trim()
           .replaceAll(' ', '')
@@ -313,7 +314,7 @@ class _AccountScreenState extends State<AccountScreen> {
         final account = AccountsCompanion(
           id: Value(widget.accountToEdit!.id),
           name: Value(name),
-          issuer: Value(_issuerController.text),
+          issuer: Value(issuer.isEmpty ? null : issuer),
           secret: Value(secret),
           tokenType: Value(_selectedTokenType),
           algorithm: Value(_selectedAlgorithm),
@@ -327,7 +328,7 @@ class _AccountScreenState extends State<AccountScreen> {
       } else {
         final account = AccountsCompanion.insert(
           name: name,
-          issuer: Value(_issuerController.text),
+          issuer: Value(issuer.isEmpty ? null : issuer),
           secret: secret,
           tokenType: _selectedTokenType,
           algorithm: _selectedAlgorithm,
