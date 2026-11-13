@@ -287,5 +287,17 @@
   "settingsScreen_languageDialog_confirmButton_label": "Confirm",
   "@settingsScreen_languageDialog_confirmButton_label": {
     "description": "Label of the confirm button on language dialog in settings screen"
+  },
+  "settingsScreen_securityRow_title": "Security",
+  "@settingsScreen_securityRow_title": {
+    "description": "Title of the security row in settings screen"
+  },
+  "settingsScreen_screenCapturePreventionSwitch_label": "Screen security",
+  "@settingsScreen_screenCapturePreventionSwitch_label": {
+    "description": "Label of the screen capture prevention switch in settings screen"
+  },
+  "settingsScreen_screenCapturePreventionSwitch_description": "Prevent screen captures in the app",
+  "@settingsScreen_screenCapturePreventionSwitch_description": {
+    "description": "Description of the screen capture prevention switch in settings screen"
   }
 }

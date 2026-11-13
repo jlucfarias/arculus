@@ -4,6 +4,7 @@ import 'package:flutter_localized_locales/flutter_localized_locales.dart';
 
 import 'package:arculus/l10n/app_localizations.dart';
 import 'package:arculus/providers/locale_provider.dart';
+import 'package:arculus/providers/security_provider.dart';
 import 'package:arculus/providers/theme_provider.dart';
 import 'package:arculus/providers/token_visibility_provider.dart';
 import 'package:arculus/repositories/account_repository.dart';
@@ -23,9 +24,11 @@ void main() {
       providers: [
         Provider<AccountRepository>(create: (_) => AccountRepository(database)),
         Provider<FolderRepository>(create: (_) => FolderRepository(database)),
+
         ChangeNotifierProvider<ThemeProvider>(create: (_) => ThemeProvider()),
         ChangeNotifierProvider<LocaleProvider>(create: (_) => LocaleProvider()),
         ChangeNotifierProvider<TokenVisibilityProvider>(create: (_) => TokenVisibilityProvider()),
+        ChangeNotifierProvider<SecurityProvider>(create: (_) => SecurityProvider())
       ],
       child: const Arculus(),
     ),

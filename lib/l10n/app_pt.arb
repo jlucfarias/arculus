@@ -71,5 +71,8 @@
   "settingsScreen_languageDialog_title": "Escolha o idioma",
   "settingsScreen_languageDialog_systemDefaultOption_label": "Padrão do sistema",
   "settingsScreen_languageDialog_cancelButton_label": "Cancelar",
-  "settingsScreen_languageDialog_confirmButton_label": "Confirmar"
+  "settingsScreen_languageDialog_confirmButton_label": "Confirmar",
+  "settingsScreen_securityRow_title": "Segurança",
+  "settingsScreen_screenCapturePreventionSwitch_label": "Segurança de tela",
+  "settingsScreen_screenCapturePreventionSwitch_description": "Previne capturas de tela dentro do app"
 }

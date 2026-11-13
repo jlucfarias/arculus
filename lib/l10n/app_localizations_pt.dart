@@ -236,4 +236,15 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get settingsScreen_languageDialog_confirmButton_label => 'Confirmar';
+
+  @override
+  String get settingsScreen_securityRow_title => 'Segurança';
+
+  @override
+  String get settingsScreen_screenCapturePreventionSwitch_label =>
+      'Segurança de tela';
+
+  @override
+  String get settingsScreen_screenCapturePreventionSwitch_description =>
+      'Previne capturas de tela dentro do app';
 }

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:arculus/l10n/app_localizations.dart';
 import 'package:arculus/extensions/l10n_extension.dart';
 import 'package:arculus/providers/locale_provider.dart';
+import 'package:arculus/providers/security_provider.dart';
 import 'package:arculus/providers/theme_provider.dart';
 import 'package:arculus/utils/app_constants.dart';
 import 'package:arculus/utils/app_theme.dart';
@@ -43,9 +44,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         nativeName = nativeName[0].toUpperCase() + nativeName.substring(1);
       }
 
-      options.add(
-        SelectOption(value: locale.languageCode, label: nativeName),
-      );
+      options.add(SelectOption(value: locale.languageCode, label: nativeName));
     }
 
     String selectedValue = options
@@ -110,6 +109,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final themeProvider = context.watch<ThemeProvider>();
+    final securityProvider = context.watch<SecurityProvider>();
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
@@ -207,6 +207,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 child: Text(l10n.settingsScreen_languageDialogTrigger_label),
+              ),
+            ),
+
+            SizedBox(height: ThemeSpacing.medium),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: ThemeSpacing.medium),
+              child: Text(
+                l10n.settingsScreen_securityRow_title,
+                style: ThemeTypography.bodyBold(colorScheme.primary),
+              ),
+            ),
+            SizedBox(
+              width: double.infinity,
+              child: SwitchListTile(
+                title: Text(l10n.settingsScreen_screenCapturePreventionSwitch_label),
+                subtitle: Text(l10n.settingsScreen_screenCapturePreventionSwitch_description),
+                value: securityProvider.isScreenCaptureBlocked,
+                onChanged: (_) {
+                  securityProvider.toggleScreenCapturePrevention();
+                },
+                //controlAffinity: ListTileControlAffinity.leading,
               ),
             ),
 

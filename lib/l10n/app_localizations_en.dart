@@ -233,4 +233,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsScreen_languageDialog_confirmButton_label => 'Confirm';
+
+  @override
+  String get settingsScreen_securityRow_title => 'Security';
+
+  @override
+  String get settingsScreen_screenCapturePreventionSwitch_label =>
+      'Screen security';
+
+  @override
+  String get settingsScreen_screenCapturePreventionSwitch_description =>
+      'Prevent screen captures in the app';
 }

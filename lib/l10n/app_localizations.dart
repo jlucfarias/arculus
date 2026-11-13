@@ -529,6 +529,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Confirm'**
   String get settingsScreen_languageDialog_confirmButton_label;
+
+  /// Title of the security row in settings screen
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get settingsScreen_securityRow_title;
+
+  /// Label of the screen capture prevention switch in settings screen
+  ///
+  /// In en, this message translates to:
+  /// **'Screen security'**
+  String get settingsScreen_screenCapturePreventionSwitch_label;
+
+  /// Description of the screen capture prevention switch in settings screen
+  ///
+  /// In en, this message translates to:
+  /// **'Prevent screen captures in the app'**
+  String get settingsScreen_screenCapturePreventionSwitch_description;
 }
 
 class _AppLocalizationsDelegate
